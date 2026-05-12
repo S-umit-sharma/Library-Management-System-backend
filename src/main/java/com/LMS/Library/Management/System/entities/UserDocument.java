@@ -1,5 +1,7 @@
-package com.LMS.Library.Management.System.entity;
+package com.LMS.Library.Management.System.entities;
 
+import com.LMS.Library.Management.System.enums.DocumentType;
+import com.LMS.Library.Management.System.enums.Status;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

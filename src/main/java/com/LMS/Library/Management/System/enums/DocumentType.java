@@ -1,4 +1,4 @@
-package com.LMS.Library.Management.System.entity;
+package com.LMS.Library.Management.System.enums;
 
 public enum DocumentType {
     AADHAR,
