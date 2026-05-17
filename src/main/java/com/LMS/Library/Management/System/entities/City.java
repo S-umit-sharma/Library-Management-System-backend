@@ -1,14 +1,25 @@
-package com.LMS.Library.Management.System.entities;
+    package com.LMS.Library.Management.System.entities;
 
-import jakarta.persistence.*;
+    import jakarta.persistence.*;
+    import lombok.Data;
+    import lombok.Getter;
+    import lombok.Setter;
 
-@Entity
-@Table(name = "cities")
-public class City {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    private String name;
-    private State state;
+    import java.util.List;
 
-}
+    @Entity
+    @Table(name = "cities")
+    @Setter
+    @Getter
+    public class City {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+        private String name;
+        @OneToMany(mappedBy = "city")
+        private List<User> user;
+        @ManyToOne
+        @JoinColumn(name="state_id")
+        private State state;
+
+    }
