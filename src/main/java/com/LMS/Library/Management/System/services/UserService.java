@@ -39,6 +39,7 @@ public class UserService {
         user.setAddress(registerDto.getAddress());
         user.setContact(registerDto.getContact());
         user.setGender(registerDto.getGender());
+        user.setUserType(registerDto.getUserType());
 
         user.setStatus(Status.PENDING);
 

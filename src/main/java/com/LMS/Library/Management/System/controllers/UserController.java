@@ -38,6 +38,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginDto loginDto, HttpSession session){
         User user = userService.login(loginDto);
+        if(user.getStatus() == Status.PENDING) throw new RuntimeException("Please Verify the OTP");
+        if(user.getStatus() != Status.ACTIVE) throw new RuntimeException("Please Add the Remaining Profile Details");
+
         session.setAttribute("loggedInUser",user.getUserId());
         LoginResponseDto response = new LoginResponseDto();
 

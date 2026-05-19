@@ -1,6 +1,8 @@
 package com.LMS.Library.Management.System.controllers;
 
 import com.LMS.Library.Management.System.dto.LibraryDto;
+import com.LMS.Library.Management.System.dto.LibraryResponseDto;
+import com.LMS.Library.Management.System.enums.UserType;
 import com.LMS.Library.Management.System.services.LibraryService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,15 @@ public class LibraryController {
         return ResponseEntity.status(HttpStatus.OK).body("Library Detials Added");
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<LibraryResponseDto> getLibraryProfile(HttpSession httpSession){
+        Integer userId = (Integer)httpSession.getAttribute("loggedInUser");
+        if(userId == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login Again");
+        LibraryResponseDto libraryResponseDto = libraryService.getLibraryProfile(userId);
+        if(libraryResponseDto == null) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Complete Your OTP Verification");
+
+        return ResponseEntity.ok(libraryResponseDto);
+    }
 
 
 }

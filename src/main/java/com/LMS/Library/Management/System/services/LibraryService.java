@@ -1,6 +1,7 @@
 package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dto.LibraryDto;
+import com.LMS.Library.Management.System.dto.LibraryResponseDto;
 import com.LMS.Library.Management.System.entities.Library;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.dao.LibrayDao;
@@ -28,5 +29,25 @@ public class LibraryService {
         library.setDepositAmount(libraryDto.getDepositAmount());
 
         return librayDao.save(library);
+    }
+
+    public LibraryResponseDto getLibraryProfile(Integer userId) {
+        User user = userService.findUserById(userId);
+        if(user == null) throw new RuntimeException("User Not Found");
+        Library libary = librayDao.getReferenceById(user.getUserId());
+        LibraryResponseDto libraryResponseDto = new LibraryResponseDto();
+        libraryResponseDto.setLibraryId(libary.getId());
+        libraryResponseDto.setLibraryName(user.getName());
+        libraryResponseDto.setEmail(user.getEmail());
+        libraryResponseDto.setWebsite(libary.getWebsite());
+        libraryResponseDto.setDetails(libary.getDetails());
+        libraryResponseDto.setOpeningTime(libary.getOpeningTime());
+        libraryResponseDto.setClosingTime(libary.getClosingTime());
+        libraryResponseDto.setBookIssueDays(libary.getBookIssueDays());
+        libraryResponseDto.setLateFine(libraryResponseDto.getLateFine());
+        libraryResponseDto.setDepositAmount(libary.getDepositAmount());
+
+
+        return libraryResponseDto;
     }
 }
