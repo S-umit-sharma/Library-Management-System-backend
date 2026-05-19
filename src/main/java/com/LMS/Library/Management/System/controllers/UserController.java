@@ -1,8 +1,11 @@
 package com.LMS.Library.Management.System.controllers;
 
+import com.LMS.Library.Management.System.dto.LoginDto;
+import com.LMS.Library.Management.System.dto.LoginResponseDto;
 import com.LMS.Library.Management.System.dto.RegisterDto;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.Status;
+import com.LMS.Library.Management.System.enums.UserType;
 import com.LMS.Library.Management.System.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -31,5 +34,18 @@ public class UserController {
         httpSession.setAttribute("userEmail", saveduser.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body("User Resgistered");
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginDto loginDto, HttpSession session){
+        User user = userService.login(loginDto);
+        session.setAttribute("loggedInUser",user.getUserId());
+        LoginResponseDto response = new LoginResponseDto();
+
+        response.setMessage("Login Successful");
+        response.setUserType(user.getUserType());
+
+        return ResponseEntity.ok(response);
+    }
+
 
 }

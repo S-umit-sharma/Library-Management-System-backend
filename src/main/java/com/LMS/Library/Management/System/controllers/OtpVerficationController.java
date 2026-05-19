@@ -26,7 +26,7 @@ public class OtpVerficationController {
 
          User user = otpService.verifyOtp(email,otpDto.getOtp());
          httpSession.removeAttribute("userEmail");
-         httpSession.setAttribute("loggedIn user",user.getUserId());
+         httpSession.setAttribute("loggedInUser",user.getUserId());
          return ResponseEntity.status(HttpStatus.OK).body("OTP Verified");
 
     }

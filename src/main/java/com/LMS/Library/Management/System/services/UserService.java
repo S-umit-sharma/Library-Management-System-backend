@@ -1,6 +1,7 @@
 package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dao.CityDao;
+import com.LMS.Library.Management.System.dto.LoginDto;
 import com.LMS.Library.Management.System.dto.RegisterDto;
 import com.LMS.Library.Management.System.entities.City;
 import com.LMS.Library.Management.System.entities.User;
@@ -55,5 +56,19 @@ public class UserService {
 
     public User saveUser(User user) {
         return userDao.save(user);
+    }
+
+    public User findUserById(Integer id) {
+        return userDao.findById(id).get();
+    }
+
+    public User login(LoginDto loginDto) {
+        User user = userDao.findByEmail(loginDto.getEmail());
+        if(user == null) throw new RuntimeException("User Not Found");
+
+        if(!user.getPassword().equals(loginDto.getPassword()))throw new RuntimeException("Please Enter Correct Password");
+
+        return user;
+
     }
 }

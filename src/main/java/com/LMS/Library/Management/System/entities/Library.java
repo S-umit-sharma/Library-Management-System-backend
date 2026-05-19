@@ -11,10 +11,11 @@ import java.time.LocalTime;
 @Table(name = "libraries")
 @Setter
 @Getter
-public class Library {
+public class Library  {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer Id;
+    private Integer id;
     private String details;
     private String website;
     private LocalTime openingTime;
@@ -22,4 +23,7 @@ public class Library {
     private Integer bookIssueDays;
     private Integer lateFine;
     private Integer depositAmount;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

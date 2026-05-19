@@ -2,6 +2,7 @@ package com.LMS.Library.Management.System.dto;
 
 import com.LMS.Library.Management.System.enums.Gender;
 
+import com.LMS.Library.Management.System.enums.UserType;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -35,6 +36,9 @@ public class RegisterDto {
 
     @NotNull(message = "Gender is required")
     private Gender gender;
+
+    @NotNull(message = "Please Select the user type")
+    private UserType userType;
 
     // getters setters
 }
