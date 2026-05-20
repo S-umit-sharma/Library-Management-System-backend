@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "libraries")
@@ -23,6 +25,8 @@ public class Library  {
     private Integer bookIssueDays;
     private Integer lateFine;
     private Integer depositAmount;
+    @OneToMany(mappedBy = "library")
+    private List<Membership> memberships = new ArrayList<>();
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

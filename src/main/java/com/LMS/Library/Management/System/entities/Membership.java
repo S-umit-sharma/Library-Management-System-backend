@@ -10,12 +10,14 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
-@Table(name = "students")
+@Table(name = "memberships")
 public class Membership {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer membershipId;
+    @ManyToOne
+    @JoinColumn(name="library_id")
     private Library library;
     private LocalDate joinedOn;
     private LocalDate leftOn;

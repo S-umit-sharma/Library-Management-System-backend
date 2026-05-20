@@ -27,7 +27,8 @@ public class OtpService {
             throw new RuntimeException("Invalid Otp");
 
         }
-        if (user.getUserType() == UserType.STUDENT || user.getUserType() == UserType.LIBRARIAN) user.setStatus(Status.ACTIVE);
+        if (user.getUserType() == UserType.STUDENT) user.setStatus(Status.ACTIVE);
+        else if(user.getUserType() == UserType.LIBRARIAN) user.setStatus(Status.VERIFIED);
         else user.setStatus(Status.VERIFIED);
         user.setVerificationCode(null);
         userService.saveUser(user);
