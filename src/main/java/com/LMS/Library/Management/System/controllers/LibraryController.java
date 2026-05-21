@@ -28,7 +28,7 @@ public class LibraryController {
     @GetMapping("/profile")
     public ResponseEntity<LibraryResponseDto> getLibraryProfile(HttpSession httpSession){
         Integer userId = (Integer)httpSession.getAttribute("loggedInUser");
-        if(userId == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login Again");
+        if(userId == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session Expired Please login Again");
         LibraryResponseDto libraryResponseDto = libraryService.getLibraryProfile(userId);
         if(libraryResponseDto == null) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Complete Your OTP Verification");
 
