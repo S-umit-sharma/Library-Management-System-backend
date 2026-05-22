@@ -6,6 +6,7 @@ import com.LMS.Library.Management.System.dto.LibrarianProfileDto;
 import com.LMS.Library.Management.System.entities.Librarian;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.Status;
+import com.LMS.Library.Management.System.enums.UserType;
 import com.LMS.Library.Management.System.utils.EmployeeCodeGenrator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,9 @@ public class LibrarianService {
     public void addDetails(LibrarianDto librarianDto, Integer id) {
         User user = userService.findUserById(id);
         if(user == null) throw new RuntimeException("User Not Found");
+        if(user.getStatus() == Status.PENDING) throw new RuntimeException("Verify OTP then try again");
         Librarian librarian = new Librarian();
-        librarian.setQualification(librarian.getQualification());
+        librarian.setQualification(librarianDto.getQualification());
         librarian.setEmployeeCode(EmployeeCodeGenrator.genrateEmpCode(user.getName(),id));
         librarian.setUser(user);
         libraianDao.save(librarian);
@@ -35,6 +37,7 @@ public class LibrarianService {
         User  user = userService.findUserById(userId);
         if(user == null) throw new RuntimeException("Invalid logged-in user");
         Librarian librarian = libraianDao.findByUser(user);
+        if(user.getUserType() != UserType.LIBRARIAN) throw new RuntimeException("User not verified");
         if(librarian == null) throw new RuntimeException("librarian profile not completed yet");
         LibrarianProfileDto librarianProfileDto = new LibrarianProfileDto();
 

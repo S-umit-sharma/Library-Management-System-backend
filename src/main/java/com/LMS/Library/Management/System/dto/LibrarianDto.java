@@ -5,9 +5,13 @@ import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Getter
+@Setter
 public class LibrarianDto {
 //
 //

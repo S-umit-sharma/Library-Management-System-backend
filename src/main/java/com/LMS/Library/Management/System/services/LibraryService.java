@@ -5,6 +5,7 @@ import com.LMS.Library.Management.System.dto.LibraryResponseDto;
 import com.LMS.Library.Management.System.entities.Library;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.dao.LibrayDao;
+import com.LMS.Library.Management.System.enums.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,13 @@ public class LibraryService {
 
     public LibraryResponseDto getLibraryProfile(Integer userId) {
         User user = userService.findUserById(userId);
+        System.out.println("-----------------");
+        System.out.println(user);
+        System.out.println("-----------------");
+
         if(user == null) throw new RuntimeException("User Not Found");
+
+        if(user.getUserType() != UserType.LIBRARY) throw new RuntimeException("User Not Verified");
         Library libary = librayDao.getReferenceById(user.getUserId());
         LibraryResponseDto libraryResponseDto = new LibraryResponseDto();
         libraryResponseDto.setLibraryId(libary.getId());
