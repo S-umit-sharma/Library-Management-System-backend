@@ -43,4 +43,5 @@ public class Librarian {
 
     @Enumerated(EnumType.STRING)
     private LibrarianStatus status;
+
 }

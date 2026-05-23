@@ -3,8 +3,7 @@ package com.LMS.Library.Management.System.entities;
 import com.LMS.Library.Management.System.enums.DocumentType;
 import com.LMS.Library.Management.System.enums.Status;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,25 +11,50 @@ import java.time.LocalDateTime;
 @Table(name = "user_documents")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserDocument {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userDocumentId;
-
-    private String documentPath;
-
-    private LocalDateTime uploadedOn;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
-    @JoinColumn(name = "document_type_id")
+    @Column(nullable = false)
     private DocumentType documentType;
 
-    @Enumerated(EnumType.STRING)
-    @JoinColumn(name = "status_id")
+    @Column(nullable = false)
+    private String documentNumber;
+
+    // Stored image/file name
+    @Column(nullable = false)
+    private String fileName;
+
+    // Original uploaded file name
+    private String originalFileName;
+
+    // File type like image/png, application/pdf
+    private String contentType;
+
+    // File size in bytes
+    private Long fileSize;
+
+    // File storage path or URL
+    @Column(nullable = false)
+    private String filePath;
+
+    @Column(nullable = false)
     private Status status;
+
+    private LocalDateTime uploadedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @PrePersist
+    public void prePersist() {
+        this.uploadedAt = LocalDateTime.now();
+    }
 }

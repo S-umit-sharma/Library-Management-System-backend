@@ -18,6 +18,7 @@ public class Library  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String details;
     private String website;
     private LocalTime openingTime;
@@ -25,9 +26,13 @@ public class Library  {
     private Integer bookIssueDays;
     private Integer lateFine;
     private Integer depositAmount;
+
     @OneToMany(mappedBy = "library")
     private List<Membership> memberships = new ArrayList<>();
+
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+
 }

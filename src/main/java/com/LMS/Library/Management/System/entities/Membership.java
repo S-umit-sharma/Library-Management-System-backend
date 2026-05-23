@@ -25,4 +25,9 @@ public class Membership {
     private Integer memberId;
     @Enumerated(EnumType.STRING)
     private Status memberStatusId;
+
+    @ManyToOne
+    @JoinColumn(name="student_id")
+    private Student student;
+
 }

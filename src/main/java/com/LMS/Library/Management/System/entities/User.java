@@ -29,11 +29,11 @@ public class User {
     private City city;
     private String address;
     private String contact;
-    private String profilePicPath;
     private String verificationCode;
+
     @OneToMany(mappedBy = "user")
     private List<UserDocument> userDocuments;
-    private String documentPath;
+
     @Enumerated(EnumType.STRING)
     private Status status;
     @Enumerated(EnumType.STRING)

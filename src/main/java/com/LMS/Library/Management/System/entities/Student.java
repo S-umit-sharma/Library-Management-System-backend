@@ -1,3 +1,5 @@
+package com.LMS.Library.Management.System.entities;
+
 import com.LMS.Library.Management.System.entities.Membership;
 import com.LMS.Library.Management.System.entities.User;
 import jakarta.persistence.*;
@@ -30,4 +32,6 @@ public class Student {
 
     @OneToMany(mappedBy = "student")
     private List<Membership> memberships;
+
+
 }

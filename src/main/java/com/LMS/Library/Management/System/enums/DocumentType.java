@@ -1,8 +1,15 @@
 package com.LMS.Library.Management.System.enums;
 
 public enum DocumentType {
-    AADHAR,
+    AADHAAR,
     PAN,
     COLLEGE_ID,
-    PASSPORT
+    PASSPORT,
+    PROFILE_PIC,
+
+    QUALIFICATION,
+
+    RESUME,
+
+    LIBRARY_LICENSE
 }
