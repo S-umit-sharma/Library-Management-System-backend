@@ -1,7 +1,7 @@
 package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dao.DocumentDao;
-import com.LMS.Library.Management.System.dto.UserDocumentDTO;
+import com.LMS.Library.Management.System.dto.UserDocumentDto;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.entities.UserDocument;
 import com.LMS.Library.Management.System.enums.Status;
@@ -29,7 +29,7 @@ public class DocumentService {
     private final String UPLOAD_DIRECTORY = "uploads/documents";
 
     @Transactional
-    public void upload(UserDocumentDTO userDocumentDTO, Integer userId) {
+    public void upload(UserDocumentDto userDocumentDTO, Integer userId) {
         MultipartFile file = userDocumentDTO.getMultipartFile();
 
         if (file == null || file.isEmpty()) {

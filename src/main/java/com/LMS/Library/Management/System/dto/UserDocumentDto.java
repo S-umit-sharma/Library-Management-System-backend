@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 @Builder
-public class UserDocumentDTO {
+public class UserDocumentDto {
 
     @NotNull(message = "Document type is required")
     private DocumentType documentType;
@@ -19,6 +19,6 @@ public class UserDocumentDTO {
     @NotBlank(message = "Document number is required")
     private String documentNumber;
 
-    @NotBlank
+    @NotBlank(message = "Upload the image")
     private MultipartFile multipartFile;
 }
