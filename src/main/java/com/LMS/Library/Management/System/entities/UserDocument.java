@@ -45,6 +45,7 @@ public class UserDocument {
     private String filePath;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     private LocalDateTime uploadedAt;

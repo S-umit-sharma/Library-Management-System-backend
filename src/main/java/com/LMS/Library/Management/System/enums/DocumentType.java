@@ -5,11 +5,7 @@ public enum DocumentType {
     PAN,
     COLLEGE_ID,
     PASSPORT,
-    PROFILE_PIC,
-
     QUALIFICATION,
-
     RESUME,
-
     LIBRARY_LICENSE
 }

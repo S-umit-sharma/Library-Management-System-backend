@@ -24,12 +24,14 @@ public class User {
     private String email;
     private String password;
     private LocalDate dob;
+
     @ManyToOne
     @JoinColumn(name = "city_id")
     private City city;
     private String address;
     private String contact;
     private String verificationCode;
+    private String profilePic;
 
     @OneToMany(mappedBy = "user")
     private List<UserDocument> userDocuments;
