@@ -7,7 +7,6 @@ import com.LMS.Library.Management.System.dto.RegisterDto;
 import com.LMS.Library.Management.System.entities.City;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.dao.UserDao;
-import com.LMS.Library.Management.System.entities.UserDocument;
 import com.LMS.Library.Management.System.enums.Status;
 import com.LMS.Library.Management.System.utils.OtpGenrator;
 import jakarta.transaction.Transactional;

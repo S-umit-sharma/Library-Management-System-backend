@@ -28,12 +28,11 @@ public class OtpService {
 
         }
         if (user.getUserType() == UserType.STUDENT) user.setStatus(Status.ACTIVE);
-        else if(user.getUserType() == UserType.LIBRARIAN) user.setStatus(Status.VERIFIED);
+        else if (user.getUserType() == UserType.LIBRARIAN) user.setStatus(Status.VERIFIED);
+        else if (user.getUserType() == UserType.PUBLISHER) user.setStatus(Status.VERIFIED);
         else user.setStatus(Status.VERIFIED);
         user.setVerificationCode(null);
         userService.saveUser(user);
-
-
         return user;
     }
 

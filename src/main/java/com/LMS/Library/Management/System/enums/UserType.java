@@ -4,6 +4,7 @@ public enum UserType {
     STUDENT,
     LIBRARIAN,
     LIBRARY,
+    PUBLISHER
 
 
 }

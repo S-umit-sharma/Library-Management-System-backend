@@ -34,9 +34,6 @@ public class LibraryService {
 
     public LibraryResponseDto getLibraryProfile(Integer userId) {
         User user = userService.findUserById(userId);
-        System.out.println("-----------------");
-        System.out.println(user);
-        System.out.println("-----------------");
 
         if(user == null) throw new RuntimeException("User Not Found");
 
