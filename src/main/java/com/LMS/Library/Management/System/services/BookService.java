@@ -8,6 +8,7 @@ import com.LMS.Library.Management.System.dto.BookUpdateDto;
 import com.LMS.Library.Management.System.entities.Book;
 import com.LMS.Library.Management.System.entities.Publisher;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Service
@@ -166,6 +168,30 @@ public class BookService {
                 .publisherName(book.getPublisher().getUser().getName())
                 .updatedAt(book.getUpdatedAt())
                 .build());
+
+    }
+
+    public @Nullable Page<BookReponseDto> getAllBooks(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<Book> bookPage = bookDao.findAll(pageable);
+        return bookPage.map(book-> BookReponseDto.builder()
+                .bookId(book.getBookId())
+                .isbn(book.getIsbn())
+                .price(book.getPrice())
+                .author(book.getAuthor())
+                .stock(book.getStock())
+                .title(book.getTitle())
+                .category(book.getCategory())
+                .coverImage(book.getCoverImage())
+                .createdAt(book.getCreatedAt())
+                .description(book.getDescription())
+                .language(book.getLanguage())
+                .publisherId(book.getPublisher().getPublisherId())
+                .publisherName(book.getPublisher().getUser().getName())
+                .updatedAt(book.getUpdatedAt())
+                .build());
+
 
     }
 }

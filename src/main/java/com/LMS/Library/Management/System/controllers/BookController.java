@@ -48,4 +48,10 @@ public class BookController {
     public ResponseEntity<Page<BookReponseDto>> getAllBooksByPublisherId(@PathVariable Integer id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue ="10") int size){
         return ResponseEntity.ok(bookService.getAllBooksByPublisherId(id,page,size));
     }
+
+    @GetMapping("all")
+    public ResponseEntity<?> getAllBooks(HttpSession session){
+        if(session.getAttribute("loggedInUser") == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
+        return ResponseEntity.ok(bookService.getAllBooks(0, 10));
+    }
 }
