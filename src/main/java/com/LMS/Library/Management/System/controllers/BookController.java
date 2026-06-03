@@ -3,10 +3,10 @@ package com.LMS.Library.Management.System.controllers;
 import com.LMS.Library.Management.System.dto.AddBookDto;
 import com.LMS.Library.Management.System.dto.BookReponseDto;
 import com.LMS.Library.Management.System.dto.BookUpdateDto;
-import com.LMS.Library.Management.System.entities.Book;
 import com.LMS.Library.Management.System.services.BookService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +42,10 @@ public class BookController {
 
         return ResponseEntity.status(HttpStatus.OK).body(bookReponseDto);
 
+    }
+
+    @GetMapping("/publisher/{id}")
+    public ResponseEntity<Page<BookReponseDto>> getAllBooksByPublisherId(@PathVariable Integer id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue ="10") int size){
+        return ResponseEntity.ok(bookService.getAllBooksByPublisherId(id,page,size));
     }
 }

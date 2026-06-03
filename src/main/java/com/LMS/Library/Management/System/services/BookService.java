@@ -9,6 +9,9 @@ import com.LMS.Library.Management.System.entities.Book;
 import com.LMS.Library.Management.System.entities.Publisher;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -122,7 +125,6 @@ public class BookService {
     public BookReponseDto getBook(Integer id) {
         Book book = bookDao.findById(id).orElseThrow(()-> new RuntimeException("Book Not Found"));
 
-
         BookReponseDto bookReponseDto = BookReponseDto.builder()
                 .bookId(book.getBookId())
                 .isbn(book.getIsbn())
@@ -141,6 +143,30 @@ public class BookService {
                 .build();
 
         return bookReponseDto;
+    }
+
+    public Page<BookReponseDto> getAllBooksByPublisherId(Integer pubId,int page,int size){
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<Book> bookPage = bookDao.findByPublisherPublisherId(pubId,pageable);
+
+        return bookPage.map(book-> BookReponseDto.builder()
+                .bookId(book.getBookId())
+                .isbn(book.getIsbn())
+                .price(book.getPrice())
+                .author(book.getAuthor())
+                .stock(book.getStock())
+                .title(book.getTitle())
+                .category(book.getCategory())
+                .coverImage(book.getCoverImage())
+                .createdAt(book.getCreatedAt())
+                .description(book.getDescription())
+                .language(book.getLanguage())
+                .publisherId(book.getPublisher().getPublisherId())
+                .publisherName(book.getPublisher().getUser().getName())
+                .updatedAt(book.getUpdatedAt())
+                .build());
+
     }
 }
 
