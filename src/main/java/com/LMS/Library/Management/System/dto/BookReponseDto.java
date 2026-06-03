@@ -1,19 +1,18 @@
-package com.LMS.Library.Management.System.entities;
+package com.LMS.Library.Management.System.dto;
 
+import com.LMS.Library.Management.System.entities.Publisher;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name="books")
 @Getter
 @Setter
-public class Book {
+@Builder
+public class BookReponseDto {
 
-    @Id
-    @GeneratedValue
     private Integer bookId;
 
     private String title;
@@ -34,11 +33,12 @@ public class Book {
 
     private String coverImage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="publisher_id", nullable = false)
-    private Publisher publisher;
+    private Integer publisherId;
+
+    private String publisherName;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
 }
