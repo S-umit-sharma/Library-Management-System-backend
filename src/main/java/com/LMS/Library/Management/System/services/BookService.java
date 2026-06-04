@@ -70,22 +70,22 @@ public class BookService {
     }
 
     @Transactional
-    public void updateBook(Integer id,BookUpdateDto dto){
-        Book book = bookDao.findById(id).orElseThrow(()-> new RuntimeException("Book Not Found"));
+    public void updateBook(Integer id, BookUpdateDto dto) {
+        Book book = bookDao.findById(id).orElseThrow(() -> new RuntimeException("Book Not Found"));
 
-        updateIfNotNull(dto.getTitle(),book::setTitle);
-        updateIfNotNull(dto.getAuthor(),book::setAuthor);
-        updateIfNotNull(dto.getIsbn(),book::setIsbn);
-        updateIfNotNull(dto.getPrice(),book::setPrice);
-        updateIfNotNull(dto.getStock(),book::setStock);
-        updateIfNotNull(dto.getCategory(),book::setCategory);
-        updateIfNotNull(dto.getLanguage(),book::setLanguage);
-        updateIfNotNull(dto.getDescription(),book::setDescription);
+        updateIfNotNull(dto.getTitle(), book::setTitle);
+        updateIfNotNull(dto.getAuthor(), book::setAuthor);
+        updateIfNotNull(dto.getIsbn(), book::setIsbn);
+        updateIfNotNull(dto.getPrice(), book::setPrice);
+        updateIfNotNull(dto.getStock(), book::setStock);
+        updateIfNotNull(dto.getCategory(), book::setCategory);
+        updateIfNotNull(dto.getLanguage(), book::setLanguage);
+        updateIfNotNull(dto.getDescription(), book::setDescription);
 
-        if(dto.getCoverImage() != null && !dto.getCoverImage().isEmpty()){
-            try{
+        if (dto.getCoverImage() != null && !dto.getCoverImage().isEmpty()) {
+            try {
                 Files.deleteIfExists(Paths.get(book.getCoverImage()));
-            }catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -118,14 +118,14 @@ public class BookService {
         return path.toString();
     }
 
-    private <T> void updateIfNotNull(T value, Consumer<T> setter){
-        if(value != null){
+    private <T> void updateIfNotNull(T value, Consumer<T> setter) {
+        if (value != null) {
             setter.accept(value);
         }
     }
 
     public BookReponseDto getBook(Integer id) {
-        Book book = bookDao.findById(id).orElseThrow(()-> new RuntimeException("Book Not Found"));
+        Book book = bookDao.findById(id).orElseThrow(() -> new RuntimeException("Book Not Found"));
 
         BookReponseDto bookReponseDto = BookReponseDto.builder()
                 .bookId(book.getBookId())
@@ -147,12 +147,12 @@ public class BookService {
         return bookReponseDto;
     }
 
-    public Page<BookReponseDto> getAllBooksByPublisherId(Integer pubId,int page,int size){
-        Pageable pageable = PageRequest.of(page,size);
+    public Page<BookReponseDto> getAllBooksByPublisherId(Integer pubId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
 
-        Page<Book> bookPage = bookDao.findByPublisherPublisherId(pubId,pageable);
+        Page<Book> bookPage = bookDao.findByPublisherPublisherId(pubId, pageable);
 
-        return bookPage.map(book-> BookReponseDto.builder()
+        return bookPage.map(book -> BookReponseDto.builder()
                 .bookId(book.getBookId())
                 .isbn(book.getIsbn())
                 .price(book.getPrice())
@@ -172,10 +172,10 @@ public class BookService {
     }
 
     public @Nullable Page<BookReponseDto> getAllBooks(int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
 
         Page<Book> bookPage = bookDao.findAll(pageable);
-        return bookPage.map(book-> BookReponseDto.builder()
+        return bookPage.map(book -> BookReponseDto.builder()
                 .bookId(book.getBookId())
                 .isbn(book.getIsbn())
                 .price(book.getPrice())
@@ -196,9 +196,9 @@ public class BookService {
     }
 
     public @Nullable Page<BookReponseDto> searchBooks(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
 
-        return bookDao.searchBook(keyword,pageable).map(this::convertToDto);
+        return bookDao.searchBook(keyword, pageable).map(this::convertToDto);
 
     }
 
@@ -217,6 +217,17 @@ public class BookService {
                 .publisherId(book.getPublisher().getPublisherId())
                 .publisherName(book.getPublisher().getUser().getName())
                 .build();
+    }
+
+    public void deleteBook(int id) {
+        Book book = bookDao.findById(id).orElseThrow(() -> new RuntimeException("Book Not Found"));
+        try {
+            Files.deleteIfExists(Paths.get(book.getCoverImage()));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        bookDao.delete(book);
     }
 }
 

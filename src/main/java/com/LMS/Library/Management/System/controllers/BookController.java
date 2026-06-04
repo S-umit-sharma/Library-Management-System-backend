@@ -55,11 +55,20 @@ public class BookController {
         return ResponseEntity.ok(bookService.getAllBooks(0, 10));
     }
 
+    // Global Search
     @GetMapping("/search")
     public ResponseEntity<?> searchBooks(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size, HttpSession session){
         if(session.getAttribute("loggedInUser") == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
         return ResponseEntity.ok(
                 bookService.searchBooks(keyword,page,size)
             );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteBook(@PathVariable int id,HttpSession session){
+        Integer userId = (Integer)session.getAttribute("loggedInUser");
+        if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
+        bookService.deleteBook(id);
+        return ResponseEntity.ok("Book Deleted Successfully");
     }
 }
