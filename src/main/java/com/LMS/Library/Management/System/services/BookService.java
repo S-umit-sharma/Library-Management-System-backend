@@ -194,5 +194,29 @@ public class BookService {
 
 
     }
+
+    public @Nullable Page<BookReponseDto> searchBooks(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+
+        return bookDao.searchBook(keyword,pageable).map(this::convertToDto);
+
+    }
+
+    private BookReponseDto convertToDto(Book book) {
+
+        return BookReponseDto.builder()
+                .bookId(book.getBookId())
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .isbn(book.getIsbn())
+                .price(book.getPrice())
+                .stock(book.getStock())
+                .category(book.getCategory())
+                .language(book.getLanguage())
+                .coverImage(book.getCoverImage())
+                .publisherId(book.getPublisher().getPublisherId())
+                .publisherName(book.getPublisher().getUser().getName())
+                .build();
+    }
 }
 

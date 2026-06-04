@@ -54,4 +54,12 @@ public class BookController {
         if(session.getAttribute("loggedInUser") == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
         return ResponseEntity.ok(bookService.getAllBooks(0, 10));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchBooks(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size, HttpSession session){
+        if(session.getAttribute("loggedInUser") == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
+        return ResponseEntity.ok(
+                bookService.searchBooks(keyword,page,size)
+            );
+    }
 }
