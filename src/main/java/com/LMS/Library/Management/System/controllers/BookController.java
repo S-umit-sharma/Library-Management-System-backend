@@ -17,7 +17,7 @@ public class BookController {
     @Autowired
     BookService bookService;
 
-    @RequestMapping("add")
+    @PostMapping("add")
     public ResponseEntity<String> addBook(@ModelAttribute AddBookDto bookDetailDto, HttpSession session){
         Integer userId = (Integer)session.getAttribute("loggedInUser");
         if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired login again");
@@ -71,4 +71,5 @@ public class BookController {
         bookService.deleteBook(id);
         return ResponseEntity.ok("Book Deleted Successfully");
     }
+
 }

@@ -2,9 +2,12 @@ package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dto.LibraryDto;
 import com.LMS.Library.Management.System.dto.LibraryResponseDto;
+import com.LMS.Library.Management.System.entities.Book;
 import com.LMS.Library.Management.System.entities.Library;
+import com.LMS.Library.Management.System.entities.LibraryBook;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.dao.LibrayDao;
+import com.LMS.Library.Management.System.enums.Status;
 import com.LMS.Library.Management.System.enums.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +20,10 @@ public class LibraryService {
     @Autowired
     private UserService userService;
 
-    public Library addDetails(LibraryDto libraryDto,Integer id) {
+    @Autowired
+    private BookService bookService;
+
+    public Library addDetails(LibraryDto libraryDto, Integer id) {
         User user = userService.findUserById(id);
         Library library = new Library();
         library.setUser(user);
@@ -28,16 +34,17 @@ public class LibraryService {
         library.setBookIssueDays(libraryDto.getBookIssueDays());
         library.setLateFine(libraryDto.getLateFine());
         library.setDepositAmount(libraryDto.getDepositAmount());
-
+        user.setStatus(Status.ACTIVE);
+        userService.saveUser(user);
         return librayDao.save(library);
     }
 
     public LibraryResponseDto getLibraryProfile(Integer userId) {
         User user = userService.findUserById(userId);
 
-        if(user == null) throw new RuntimeException("User Not Found");
+        if (user == null) throw new RuntimeException("User Not Found");
 
-        if(user.getUserType() != UserType.LIBRARY) throw new RuntimeException("User Not Verified");
+        if (user.getUserType() != UserType.LIBRARY) throw new RuntimeException("User Not Verified");
         Library libary = librayDao.getReferenceById(user.getUserId());
         LibraryResponseDto libraryResponseDto = new LibraryResponseDto();
         libraryResponseDto.setLibraryId(libary.getId());
@@ -54,4 +61,6 @@ public class LibraryService {
 
         return libraryResponseDto;
     }
+
+
 }
