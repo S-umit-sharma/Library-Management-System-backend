@@ -57,4 +57,31 @@ public class LibraryBookService {
 
 bookDao.save(book);
     }
+
+    @Transactional
+    public void removeBookFromLibrary(Integer bookId, Integer userId, Integer quantity) {
+
+        Library library = librayDao.findByUser_UserId(userId)
+                .orElseThrow(() -> new RuntimeException("Library not found"));
+
+        Book book = bookDao.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        LibraryBook libraryBook = libraryBookDao.findByLibraryAndBook(library, book)
+                .orElseThrow(() -> new RuntimeException("Book not available in library"));
+
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+
+        if (libraryBook.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Not enough copies in library");
+        }
+
+        if (libraryBook.getQuantity().equals(quantity)) {
+            libraryBookDao.delete(libraryBook);
+        } else {
+            libraryBook.setQuantity(libraryBook.getQuantity() - quantity);
+        }
+    }
 }

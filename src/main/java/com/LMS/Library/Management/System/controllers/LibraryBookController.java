@@ -23,4 +23,14 @@ public class LibraryBookController {
         bookService.addBookToLibrary(id,loggedInUser,quantity);
         return ResponseEntity.status(HttpStatus.OK).body("Book Added Successfully");
     }
+
+    @DeleteMapping("/addBookToLibrary/{id}")
+    public ResponseEntity<?> removeBookFromLibrary(@PathVariable int id,@RequestParam int quantity,HttpSession session){
+        Integer loggedInUser =
+                (Integer) session.getAttribute("loggedInUser");
+
+        if(loggedInUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
+        bookService.removeBookFromLibrary(id,loggedInUser,quantity);
+        return ResponseEntity.status(HttpStatus.OK).body("Book deleted Successfully");
+    }
 }
