@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +103,7 @@ public class BookService {
     public String uploadBookImage(MultipartFile file) {
 
         if (file == null || file.isEmpty()) {
-            throw new RuntimeException("Please select a book image");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Please select a book image");
         }
         String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
         File directory = new File(UPLOAD_DIR);
@@ -112,7 +114,7 @@ public class BookService {
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException ioException) {
-            throw new RuntimeException("Document Uplaod Failed");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Document Uplaod Failed");
         }
 
         return path.toString();

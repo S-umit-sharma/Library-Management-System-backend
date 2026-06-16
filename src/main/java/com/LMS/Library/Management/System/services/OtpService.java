@@ -6,7 +6,10 @@ import com.LMS.Library.Management.System.enums.UserType;
 import com.LMS.Library.Management.System.utils.OtpGenrator;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class OtpService {
@@ -39,7 +42,7 @@ public class OtpService {
     public void resendOtp(@NotBlank(message = "Email is required") String email) {
         User user = userService.findUserByEmail(email);
         if (user == null) throw new RuntimeException("User Not Found");
-        if (user.getStatus() == Status.ACTIVE) throw new RuntimeException("User already verfied");
+        if (user.getStatus() == Status.ACTIVE) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User already verfied");
         String otp = OtpGenrator.genrateOtp();
         user.setVerificationCode(otp);
         userService.saveUser(user);

@@ -23,7 +23,7 @@ public class LibraryController {
         Integer id = (Integer) session.getAttribute("loggedInUser");
         if(id == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Required");
         libraryService.addDetails(libraryDto, id);
-        return ResponseEntity.status(HttpStatus.OK).body("Library Detials Added");
+        return ResponseEntity.status(HttpStatus.OK).body("Library details saved successfully!");
     }
 
     @GetMapping("/profile")
