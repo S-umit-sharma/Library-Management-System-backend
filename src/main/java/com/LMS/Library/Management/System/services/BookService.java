@@ -73,29 +73,48 @@ public class BookService {
 
     @Transactional
     public void updateBook(Integer id, BookUpdateDto dto) {
+
+        System.out.println(dto);
         Book book = bookDao.findById(id).orElseThrow(() -> new RuntimeException("Book Not Found"));
 
+
         updateIfNotNull(dto.getTitle(), book::setTitle);
+
         updateIfNotNull(dto.getAuthor(), book::setAuthor);
+
         updateIfNotNull(dto.getIsbn(), book::setIsbn);
+
         updateIfNotNull(dto.getPrice(), book::setPrice);
+
         updateIfNotNull(dto.getStock(), book::setStock);
+
         updateIfNotNull(dto.getCategory(), book::setCategory);
+
         updateIfNotNull(dto.getLanguage(), book::setLanguage);
+
         updateIfNotNull(dto.getDescription(), book::setDescription);
 
+
         if (dto.getCoverImage() != null && !dto.getCoverImage().isEmpty()) {
+            String uploadDir = "uploads/books";
+            String fileName = book.getCoverImage();
+            System.out.println(fileName);
             try {
-                Files.deleteIfExists(Paths.get(book.getCoverImage()));
+                Files.deleteIfExists(Paths.get(uploadDir,fileName));
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
             String imagePath = uploadBookImage(dto.getCoverImage());
+
             book.setCoverImage(imagePath);
+
         }
+
         book.setUpdatedAt(LocalDateTime.now());
+
         bookDao.save(book);
+
     }
 
 
@@ -103,7 +122,7 @@ public class BookService {
     public String uploadBookImage(MultipartFile file) {
 
         if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Please select a book image");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a book image");
         }
         String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
         File directory = new File(UPLOAD_DIR);
@@ -114,10 +133,10 @@ public class BookService {
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException ioException) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Document Uplaod Failed");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Document Uplaod Failed");
         }
 
-        return path.toString();
+        return fileName;
     }
 
     private <T> void updateIfNotNull(T value, Consumer<T> setter) {
@@ -152,24 +171,8 @@ public class BookService {
     public Page<BookReponseDto> getAllBooksByPublisherId(Integer pubId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Book> bookPage = bookDao.findByPublisherPublisherId(pubId, pageable);
+        return bookDao.findBooksByPublisherId(pubId, pageable);
 
-        return bookPage.map(book -> BookReponseDto.builder()
-                .bookId(book.getBookId())
-                .isbn(book.getIsbn())
-                .price(book.getPrice())
-                .author(book.getAuthor())
-                .stock(book.getStock())
-                .title(book.getTitle())
-                .category(book.getCategory())
-                .coverImage(book.getCoverImage())
-                .createdAt(book.getCreatedAt())
-                .description(book.getDescription())
-                .language(book.getLanguage())
-                .publisherId(book.getPublisher().getPublisherId())
-                .publisherName(book.getPublisher().getUser().getName())
-                .updatedAt(book.getUpdatedAt())
-                .build());
 
     }
 

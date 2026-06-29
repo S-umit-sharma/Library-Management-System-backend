@@ -1,5 +1,6 @@
 package com.LMS.Library.Management.System.dao;
 
+import com.LMS.Library.Management.System.dto.BookReponseDto;
 import com.LMS.Library.Management.System.entities.Book;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface BookDao extends JpaRepository<Book,Integer> {
-    Page<Book> findByPublisherPublisherId(Integer pubId, Pageable pageable);
 
 
     @Query(
@@ -25,4 +25,31 @@ public interface BookDao extends JpaRepository<Book,Integer> {
 
     )
     Page<Book> searchBook(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("""
+        SELECT new com.LMS.Library.Management.System.dto.BookReponseDto(
+            b.bookId,
+            b.title,
+            b.author,
+            b.isbn,
+            b.price,
+            b.stock,
+            b.category,
+            b.language,
+            b.description,
+            b.coverImage,
+            p.publisherId,
+            u.name,
+            b.createdAt,
+            b.updatedAt
+        )
+        FROM Book b
+        JOIN b.publisher p
+        JOIN p.user u
+        WHERE p.publisherId = :publisherId
+        """)
+    Page<BookReponseDto> findBooksByPublisherId(
+            @Param("publisherId") Integer publisherId,
+            Pageable pageable
+    );
 }

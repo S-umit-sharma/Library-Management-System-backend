@@ -3,6 +3,7 @@ package com.LMS.Library.Management.System.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Table(name="books")
 @Getter
 @Setter
+@ToString
 public class Book {
 
     @Id
@@ -33,6 +35,8 @@ public class Book {
     private String description;
 
     private String coverImage;
+
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="publisher_id", nullable = false)

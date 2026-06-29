@@ -2,15 +2,15 @@ package com.LMS.Library.Management.System.dto;
 
 import com.LMS.Library.Management.System.entities.Publisher;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BookReponseDto {
 
     private Integer bookId;

@@ -39,6 +39,8 @@ public class UserService {
     private String UPLOAD_DIR = "uploads/profile_pics";
 
     public User registerUser(RegisterDto registerDto) {
+        User u = userDao.findByEmail(registerDto.getEmail());
+        if(u != null) throw new RuntimeException("User already exists");
         User user = new User();
         user.setName(registerDto.getName());
         user.setEmail(registerDto.getEmail());
