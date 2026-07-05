@@ -6,6 +6,9 @@ import com.LMS.Library.Management.System.dto.RegisterDto;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.Status;
 import com.LMS.Library.Management.System.enums.UserType;
+import com.LMS.Library.Management.System.services.LibrarianService;
+import com.LMS.Library.Management.System.services.LibraryService;
+import com.LMS.Library.Management.System.services.PublisherService;
 import com.LMS.Library.Management.System.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -24,6 +27,15 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    LibraryService libraryService;
+
+    @Autowired
+    PublisherService publisherService;
+
+    @Autowired
+    LibrarianService librarianService;
+
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterDto registerDto, HttpSession httpSession) {
         User saveduser = userService.registerUser(registerDto);
@@ -35,20 +47,30 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpSession session){
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpSession session) {
         User user = userService.login(loginDto);
-        if(user.getStatus() == Status.PENDING) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                Map.of("code","OTP_VERIFICATION_REQUIRED","message","Please verify your otp"));
-        if(user.getStatus() != Status.ACTIVE) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+        if (user.getStatus() == Status.PENDING) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                Map.of("code", "OTP_VERIFICATION_REQUIRED", "message", "Please verify your otp"));
+        if (user.getStatus() != Status.ACTIVE) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                 Map.of(
                         "code", "PROFILE_INCOMPLETE",
                         "message", "Please add the remaining profile details",
-                        "userType",user.getUserType()
+                        "userType", user.getUserType()
                 )
         );
-        session.setAttribute("loggedInUser",user.getUserId());
         LoginResponseDto response = new LoginResponseDto();
 
+        if (user.getUserType() == UserType.PUBLISHER) {
+
+            session.setAttribute("publisherId", publisherService.getProfile(user.getUserId()).getPublisherId());
+        } else if (user.getUserType() == UserType.LIBRARY) {
+
+            session.setAttribute("libraryId", libraryService.getLibraryProfile(user.getUserId()).getLibraryId());
+        } else if (user.getUserType() == UserType.LIBRARIAN){
+            session.setAttribute("librarianId", librarianService.getLibrarianProfile(user.getUserId()).getLibrarianId());
+        }
+
+        session.setAttribute("loggedInUser", user.getUserId());
         response.setMessage("Login Successful");
         response.setUserType(user.getUserType());
 
@@ -56,12 +78,10 @@ public class UserController {
     }
 
     @PostMapping("/logout   ")
-    public ResponseEntity<String> logout(HttpSession session){
+    public ResponseEntity<String> logout(HttpSession session) {
         session.removeAttribute("loggedInUser");
         return ResponseEntity.status(HttpStatus.OK).body("Logged out");
     }
-
-
 
 
 }

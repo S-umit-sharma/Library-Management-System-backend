@@ -33,6 +33,7 @@ public class LibraryController {
         if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session Expired Please login Again");
         LibraryResponseDto libraryResponseDto = libraryService.getLibraryProfile(userId);
         if(libraryResponseDto == null) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Complete Your OTP Verification");
+        httpSession.setAttribute("UserTypeId",libraryResponseDto.getLibraryId());
 
         return ResponseEntity.ok(libraryResponseDto);
     }

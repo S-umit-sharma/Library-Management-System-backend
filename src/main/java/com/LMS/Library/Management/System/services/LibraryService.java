@@ -2,11 +2,9 @@ package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dto.LibraryDto;
 import com.LMS.Library.Management.System.dto.LibraryResponseDto;
-import com.LMS.Library.Management.System.entities.Book;
 import com.LMS.Library.Management.System.entities.Library;
-import com.LMS.Library.Management.System.entities.LibraryBook;
 import com.LMS.Library.Management.System.entities.User;
-import com.LMS.Library.Management.System.dao.LibrayDao;
+import com.LMS.Library.Management.System.dao.LibraryDao;
 import com.LMS.Library.Management.System.enums.Status;
 import com.LMS.Library.Management.System.enums.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class LibraryService {
     @Autowired
-    private LibrayDao librayDao;
+    private LibraryDao librayDao;
 
     @Autowired
     private UserService userService;
@@ -45,7 +43,7 @@ public class LibraryService {
         if (user == null) throw new RuntimeException("User Not Found");
 
         if (user.getUserType() != UserType.LIBRARY) throw new RuntimeException("User Not Verified");
-        Library libary = librayDao.getReferenceById(user.getUserId());
+        Library libary = librayDao.findByUser_UserId(user.getUserId()).orElseThrow(()-> new RuntimeException("User Not Found"));
         LibraryResponseDto libraryResponseDto = new LibraryResponseDto();
         libraryResponseDto.setLibraryId(libary.getId());
         libraryResponseDto.setLibraryName(user.getName());

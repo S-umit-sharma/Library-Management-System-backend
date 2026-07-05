@@ -1,20 +1,44 @@
 package com.LMS.Library.Management.System.controllers;
 
-import com.LMS.Library.Management.System.services.MembershipService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.LMS.Library.Management.System.dto.CreateMembershipRequest;
+import com.LMS.Library.Management.System.dto.LibraryMembershipResponseDto;
+import com.LMS.Library.Management.System.services.MembershipService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
 @RequestMapping("/membership")
+@RequiredArgsConstructor
 public class MembershipController {
 
-    @Autowired
-    MembershipService service;
+    private final MembershipService membershipService;
+
+    @PostMapping
+    public ResponseEntity<LibraryMembershipResponseDto> createMembership(
+            @RequestBody CreateMembershipRequest dto,
+            HttpSession session) {
+
+        Integer libraryId = (Integer) session.getAttribute("libraryId");
+
+        return ResponseEntity.ok(
+                membershipService.createMembership(dto, libraryId)
+        );
+    }
+
+//    @GetMapping
+//    public ResponseEntity<Page<MembershipResponse>> getAllMemberships(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size,
+//            HttpSession session) {
 //
-//    @PostMapping("/details")
-//    public ResponseEntity<String> addDetails(@RequestBody LibraryDto libraryDto, HttpSession session){
-//        Integer id = (Integer) session.getAttribute("loggedInUser");
-//        if(id == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Required");
-//        service.addDetails(libraryDto, id);
-//        return ResponseEntity.status(HttpStatus.OK).body("Student Detials Added");
+//        Integer libraryId = (Integer) session.getAttribute("libraryId");
+//
+//        return ResponseEntity.ok(
+//                membershipService.getMemberships(libraryId, page, size)
+//        );
 //    }
+
 }

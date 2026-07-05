@@ -38,8 +38,8 @@ public class UserService {
 
     private String UPLOAD_DIR = "uploads/profile_pics";
 
-    public User registerUser(RegisterDto registerDto) {
-        User u = userDao.findByEmail(registerDto.getEmail());
+    public User  registerUser(RegisterDto registerDto) {
+        User u = userDao.findByEmail(registerDto.getEmail()).get();
         if(u != null) throw new RuntimeException("User already exists");
         User user = new User();
         user.setName(registerDto.getName());
@@ -65,7 +65,7 @@ public class UserService {
 
 
     public User findUserByEmail(String email) {
-        return userDao.findByEmail(email);
+        return userDao.findByEmail(email).get();
     }
 
     public User saveUser(User user) {
@@ -77,7 +77,7 @@ public class UserService {
     }
 
     public User login(LoginDto loginDto) {
-        User user = userDao.findByEmail(loginDto.getEmail());
+        User user = userDao.findByEmail(loginDto.getEmail()).get();
         if(user == null) throw new RuntimeException("User Not Found");
 
         if(!user.getPassword().equals(loginDto.getPassword()))throw new RuntimeException("Please Enter Correct Password");

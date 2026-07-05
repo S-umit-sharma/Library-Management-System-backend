@@ -27,7 +27,7 @@ public class Library  {
     private Integer lateFine;
     private Integer depositAmount;
 
-    @OneToMany(mappedBy = "library")
+    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL)
     private List<Membership> memberships = new ArrayList<>();
 
     @OneToOne

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Setter
 public class LibrarianProfileDto {
 
+    private Integer librarianId;
     // User Data
     private String name;
 
