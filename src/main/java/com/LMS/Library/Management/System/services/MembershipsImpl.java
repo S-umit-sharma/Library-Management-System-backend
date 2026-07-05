@@ -12,6 +12,7 @@ import com.LMS.Library.Management.System.entities.MembershipPlan;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.MembershipStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 @Service
 @RequiredArgsConstructor
 public class MembershipsImpl implements MembershipService {
+
 
     private final MembershipDao membershipRepository;
     private final LibraryDao libraryRepository;
@@ -61,6 +63,8 @@ public class MembershipsImpl implements MembershipService {
 
         // Finding the MembershipPlan in the DB
         MembershipPlan membershipPlan = membershipPlanDao.findById(dto.getPlanId()).orElseThrow(() -> new RuntimeException("Membership plan no longer available or not found"));
+        System.out.println(membershipPlan.getPlanId() +"");
+        System.out.println(membershipPlan.getFee() +"");
 
 
         if (membershipRepository.existsByLibraryAndUser(library, user)) {
@@ -80,6 +84,7 @@ public class MembershipsImpl implements MembershipService {
                 .amountPaid(dto.getAmountPaid())
                 .dueAmount(dueAmount)
                 .booksIssued(0)
+                .membershipPlan(membershipPlan)
                 .membershipFee(membershipPlan.getFee())
                 .maxBooksAllowed(membershipPlan.getMaxBooksAllowed())
                 .build();
