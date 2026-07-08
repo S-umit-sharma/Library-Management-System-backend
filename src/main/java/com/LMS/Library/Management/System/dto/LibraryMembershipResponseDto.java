@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class LibraryMembershipResponseDto {
 
+    private Integer membershipId;
     private String membershipNumber;
 
     // Member Details

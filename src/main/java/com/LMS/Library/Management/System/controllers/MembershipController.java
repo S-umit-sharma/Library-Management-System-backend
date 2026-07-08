@@ -6,6 +6,7 @@ import com.LMS.Library.Management.System.dto.LibraryMembershipResponseDto;
 import com.LMS.Library.Management.System.services.MembershipService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,17 +29,33 @@ public class MembershipController {
         );
     }
 
-//    @GetMapping
-//    public ResponseEntity<Page<MembershipResponse>> getAllMemberships(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            HttpSession session) {
-//
-//        Integer libraryId = (Integer) session.getAttribute("libraryId");
-//
-//        return ResponseEntity.ok(
-//                membershipService.getMemberships(libraryId, page, size)
-//        );
-//    }
+    @GetMapping
+    public ResponseEntity<Page<LibraryMembershipResponseDto>> getAllMemberships(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpSession session) {
+
+        Integer libraryId = (Integer) session.getAttribute("libraryId");
+
+        return ResponseEntity.ok(
+                membershipService.getMemberships(libraryId, page, size)
+        );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<LibraryMembershipResponseDto>> searchMemberships(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpSession session) {
+
+        Integer libraryId = (Integer) session.getAttribute("libraryId");
+
+        return ResponseEntity.ok(
+                membershipService.searchMemberships(libraryId, query, page, size)
+        );
+    }
+
+
 
 }

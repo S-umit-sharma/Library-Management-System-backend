@@ -13,13 +13,15 @@ import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.MembershipStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class MembershipsImpl implements MembershipService {
+public  class MembershipsImpl implements MembershipService {
 
 
     private final MembershipDao membershipRepository;
@@ -30,6 +32,7 @@ public class MembershipsImpl implements MembershipService {
     private LibraryMembershipResponseDto mapToDto(Membership membership) {
 
         return LibraryMembershipResponseDto.builder()
+                .membershipId(membership.getMembershipId())
                 .membershipNumber(membership.getMembershipNumber())
                 .memberName(membership.getUser().getName())
                 .memberEmail(membership.getUser().getEmail())
@@ -93,34 +96,36 @@ public class MembershipsImpl implements MembershipService {
 
         return mapToDto(membership);
     }
-//    @Override
-//    public Page<MembershipResponse> getMemberships(
-//            Integer libraryId,
-//            int page,
-//            int size) {
-//
-//        Page<Membership> memberships =
-//                membershipRepository.findByLibraryLibraryId(
-//                        libraryId,
-//                        PageRequest.of(page, size));
-//
-//        return memberships.map(this::mapToDto);
-//    }
-//    @Override
-//    public Page<MembershipResponse> searchMemberships(
-//            Integer libraryId,
-//            String keyword,
-//            int page,
-//            int size) {
-//
-//        Page<Membership> memberships =
-//                membershipRepository.searchMembership(
-//                        libraryId,
-//                        keyword,
-//                        PageRequest.of(page, size));
-//
-//        return memberships.map(this::mapToDto);
-//    }
+
+
+    @Override
+    public Page<LibraryMembershipResponseDto> getMemberships(
+            Integer libraryId,
+            int page,
+            int size) {
+
+        Page<Membership> memberships =
+                membershipRepository.findByLibraryId(
+                        libraryId,
+                        PageRequest.of(page, size));
+
+        return memberships.map(this::mapToDto);
+    }
+    @Override
+    public Page<LibraryMembershipResponseDto> searchMemberships(
+            Integer libraryId,
+            String keyword,
+            int page,
+            int size) {
+
+        Page<Membership> memberships =
+                membershipRepository.searchMembership(
+                        libraryId,
+                        keyword,
+                        PageRequest.of(page, size));
+
+        return memberships.map(this::mapToDto);
+    }
 
     private String generateMembershipNumber() {
 
