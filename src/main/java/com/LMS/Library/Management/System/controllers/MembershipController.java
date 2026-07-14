@@ -3,6 +3,7 @@ package com.LMS.Library.Management.System.controllers;
 
 import com.LMS.Library.Management.System.dto.CreateMembershipRequest;
 import com.LMS.Library.Management.System.dto.LibraryMembershipResponseDto;
+import com.LMS.Library.Management.System.dto.MembershipPaymentRequestDto;
 import com.LMS.Library.Management.System.services.MembershipService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,29 @@ public class MembershipController {
 
         return ResponseEntity.ok(
                 membershipService.searchMemberships(libraryId, query, page, size)
+        );
+    }
+
+    @PatchMapping("/{membershipId}/payment")
+    public ResponseEntity<LibraryMembershipResponseDto> payMembershipDue(
+
+            @PathVariable Integer membershipId,
+
+            @RequestBody MembershipPaymentRequestDto request,
+
+            HttpSession session) {
+
+        Integer libraryId =
+                (Integer) session.getAttribute("libraryId");
+
+        return ResponseEntity.ok(
+
+                membershipService.payMembershipDue(
+                        membershipId,
+                        request,
+                        libraryId
+                )
+
         );
     }
 

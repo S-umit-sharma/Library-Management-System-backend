@@ -2,6 +2,7 @@ package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dto.CreateMembershipRequest;
 import com.LMS.Library.Management.System.dto.LibraryMembershipResponseDto;
+import com.LMS.Library.Management.System.dto.MembershipPaymentRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,11 @@ public interface MembershipService {
             String keyword,
             int page,
             int size);
+
+    LibraryMembershipResponseDto payMembershipDue(
+            Integer membershipId,
+            MembershipPaymentRequestDto request,
+            Integer libraryId);
 
 }
 

@@ -6,11 +6,13 @@ import com.LMS.Library.Management.System.dao.MembershipPlanDao;
 import com.LMS.Library.Management.System.dao.UserDao;
 import com.LMS.Library.Management.System.dto.CreateMembershipRequest;
 import com.LMS.Library.Management.System.dto.LibraryMembershipResponseDto;
+import com.LMS.Library.Management.System.dto.MembershipPaymentRequestDto;
 import com.LMS.Library.Management.System.entities.Library;
 import com.LMS.Library.Management.System.entities.Membership;
 import com.LMS.Library.Management.System.entities.MembershipPlan;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.MembershipStatus;
+import com.LMS.Library.Management.System.enums.UserType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +23,7 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public  class MembershipsImpl implements MembershipService {
+public class MembershipsImpl implements MembershipService {
 
 
     private final MembershipDao membershipRepository;
@@ -59,6 +61,7 @@ public  class MembershipsImpl implements MembershipService {
                 .orElseThrow(() ->
                         new RuntimeException("User Not Found"));
 
+        if(user.getUserType() != UserType.STUDENT) throw new RuntimeException("Student Account Requierd");
         //  Finding the Library in the DB
         Library library = libraryRepository.findById(libraryId)
                 .orElseThrow(() ->
@@ -66,8 +69,6 @@ public  class MembershipsImpl implements MembershipService {
 
         // Finding the MembershipPlan in the DB
         MembershipPlan membershipPlan = membershipPlanDao.findById(dto.getPlanId()).orElseThrow(() -> new RuntimeException("Membership plan no longer available or not found"));
-        System.out.println(membershipPlan.getPlanId() +"");
-        System.out.println(membershipPlan.getFee() +"");
 
 
         if (membershipRepository.existsByLibraryAndUser(library, user)) {
@@ -75,7 +76,7 @@ public  class MembershipsImpl implements MembershipService {
         }
 
         LocalDate issueDate = LocalDate.now();
-        LocalDate expiryDate =  issueDate.plusDays(membershipPlan.getDurationDays());
+        LocalDate expiryDate = issueDate.plusDays(membershipPlan.getDurationDays());
         Double dueAmount = membershipPlan.getFee() - dto.getAmountPaid();
         Membership membership = Membership.builder()
                 .library(library)
@@ -111,6 +112,7 @@ public  class MembershipsImpl implements MembershipService {
 
         return memberships.map(this::mapToDto);
     }
+
     @Override
     public Page<LibraryMembershipResponseDto> searchMemberships(
             Integer libraryId,
@@ -125,6 +127,43 @@ public  class MembershipsImpl implements MembershipService {
                         PageRequest.of(page, size));
 
         return memberships.map(this::mapToDto);
+    }
+
+    @Override
+    public LibraryMembershipResponseDto payMembershipDue(
+            Integer membershipId,
+            MembershipPaymentRequestDto request,
+            Integer libraryId) {
+
+        Membership membership = membershipRepository.findById(membershipId)
+                .orElseThrow(() ->
+                        new RuntimeException("Membership not found."));
+
+        if (!membership.getLibrary().getId().equals(libraryId)) {
+            throw new RuntimeException("Unauthorized access.");
+        }
+
+        Double amount = request.getAmount();
+
+        if (amount == null || amount <= 0) {
+            throw new RuntimeException("Invalid payment amount.");
+        }
+
+        if (amount > membership.getDueAmount()) {
+            throw new RuntimeException("Amount exceeds due amount.");
+        }
+
+        membership.setAmountPaid(
+                membership.getAmountPaid() + amount
+        );
+
+        membership.setDueAmount(
+                membership.getDueAmount() - amount
+        );
+
+        membershipRepository.save(membership);
+
+        return mapToDto(membership);
     }
 
     private String generateMembershipNumber() {

@@ -44,7 +44,7 @@ public class LibraryBookController {
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size, HttpSession session) {
-        Integer libraryId = (Integer)session.getAttribute("userId");
+        Integer libraryId = (Integer)session.getAttribute("libraryId");
         Page<LibraryBookResponseDto> res = bookService.searchBooks(libraryId, keyword, page, size);
         System.out.println(res);
         return ResponseEntity.ok(

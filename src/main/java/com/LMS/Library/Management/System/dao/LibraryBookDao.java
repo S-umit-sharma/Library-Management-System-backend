@@ -3,6 +3,7 @@ package com.LMS.Library.Management.System.dao;
 import com.LMS.Library.Management.System.entities.Book;
 import com.LMS.Library.Management.System.entities.Library;
 import com.LMS.Library.Management.System.entities.LibraryBook;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +30,22 @@ public interface LibraryBookDao extends JpaRepository<LibraryBook,Integer> {
     Page<LibraryBook> searchBooks(Integer libraryId,
                                   String keyword,
                                   Pageable pageable);
+
+    Page<LibraryBook> findByLibrary_Id(
+            Integer libraryId,
+            Pageable pageable);
+
+    Page<LibraryBook> findByLibrary_IdAndQuantityLessThanEqual(
+            Integer libraryId,
+            Integer quantity,
+            Pageable pageable);
+
+    long countByLibrary_IdAndQuantityLessThanEqual(
+            Integer libraryId,
+            Integer quantity);
+
+
+    Optional<LibraryBook> findByLibrary_IdAndBookBookId(
+            Integer libraryId,
+            Integer bookId);
 }

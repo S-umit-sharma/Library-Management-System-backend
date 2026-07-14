@@ -7,6 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
 
 public interface MembershipDao extends JpaRepository<Membership,Integer> {
 
@@ -35,4 +38,12 @@ public interface MembershipDao extends JpaRepository<Membership,Integer> {
 
     @Query("SELECT COUNT(*) FROM Membership")
     int countAll();
+
+
+    Optional<Membership> findByMembershipNumberAndLibraryId(
+            String membershipNumber, Integer libraryId);
+
+    @Query("SELECT SUM(m.dueAmount) FROM Membership m WHERE m.library.id = :libraryId")
+    Double sumDueAmountByLibraryId(@Param("libraryId") Integer libraryId);
+
 }
