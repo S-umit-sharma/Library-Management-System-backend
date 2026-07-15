@@ -95,6 +95,7 @@ public class BookIssueService {
                 .membership(membership)
                 .library(library)
                 .issueDate(issueDate)
+
                 .dueDate(dueDate)
                 .status(IssueStatus.ISSUED)
                 .fineDue(0.0)
@@ -200,8 +201,9 @@ public class BookIssueService {
     // ------------------------------------------------------------------
     public Page<BookIssueResponseDto> getOverdueIssues(
             Integer libraryId, int page, int size) {
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("dueDate").ascending());
-        return bookIssueRepository.findOverdueByLibrary(
+        return bookIssueRepository.findOverdueByLibrary_id(
                         libraryId, LocalDate.now(), pageable)
                 .map(this::toResponse);
     }
@@ -296,9 +298,13 @@ public class BookIssueService {
         LocalDate today = LocalDate.now();
         LocalDate dueDate = issue.getDueDate();
 
-        boolean overdue = issue.getStatus() == IssueStatus.ISSUED
+        boolean overdue = issue.getStatus() == IssueStatus.RETURNED
                 && today.isAfter(dueDate);
         long overdueDays = overdue ? ChronoUnit.DAYS.between(dueDate, today) : 0;
+
+        double fineDue = overdue
+                ? overdueDays * issue.getLibrary().getLateFine()
+                : 0;
 
         return BookIssueResponseDto.builder()
                 .issueId(issue.getIssueId())
@@ -316,7 +322,7 @@ public class BookIssueService {
                 .dueDate(issue.getDueDate())
                 .returnDate(issue.getReturnDate())
                 .status(issue.getStatus())
-                .fineDue(issue.getFineDue())
+                .fineDue(fineDue)
                 .overdue(overdue)
                 .overdueDays(overdueDays)
                 .build();

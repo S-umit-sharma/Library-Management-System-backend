@@ -28,15 +28,18 @@ public interface BookIssueRepository extends JpaRepository<BookIssue, Integer> {
 
     // Overdue issues for a library
     @Query("""
-        SELECT bi FROM BookIssue bi
-        WHERE bi.library.id = :libraryId
-        AND bi.status = 'ISSUED'
-        AND bi.dueDate < :today
-    """)
-    Page<BookIssue> findOverdueByLibrary(
+    SELECT bi
+    FROM BookIssue bi
+    WHERE bi.library.id = :libraryId
+    AND bi.status = com.LMS.Library.Management.System.enums.IssueStatus.RETURNED 
+    AND bi.dueDate < :today
+""")
+    Page<BookIssue> findOverdueByLibrary_id(
             @Param("libraryId") Integer libraryId,
             @Param("today") LocalDate today,
             Pageable pageable);
+
+
 
     // Count currently issued books for a library (for stat card)
     long countByLibraryIdAndStatus(Integer libraryId, IssueStatus status);

@@ -83,7 +83,6 @@ public class BookIssueController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             HttpSession session) {
-
         Integer libraryId = (Integer) session.getAttribute("libraryId");
         return ResponseEntity.ok(
                 bookIssueService.getOverdueIssues(libraryId, page, size));
