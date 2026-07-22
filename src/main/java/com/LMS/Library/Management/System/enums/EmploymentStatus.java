@@ -1,12 +1,11 @@
 package com.LMS.Library.Management.System.enums;
 
-public enum LibrarianStatus {
+
+public enum EmploymentStatus {
 
     ACTIVE,
 
-    INACTIVE,
-
-    SUSPENDED,
+    ON_LEAVE,
 
     RESIGNED,
 

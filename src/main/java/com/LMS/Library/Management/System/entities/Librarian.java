@@ -1,12 +1,13 @@
 package com.LMS.Library.Management.System.entities;
 
-import com.LMS.Library.Management.System.enums.LibrarianStatus;
-import com.LMS.Library.Management.System.enums.Status;
+import com.LMS.Library.Management.System.enums.LibrarianProfileStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Getter
@@ -14,34 +15,34 @@ import java.time.LocalDate;
 public class Librarian {
 
     @Id
-    @GeneratedValue(strategy =
-            GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer librarianId;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private String highestQualification;
 
-    @JoinColumn(name = "library_id")
-    private Library library;
+    private Double totalExperienceYears;
 
-    private String employeeCode;
+    private String specialization;
 
-    private String designation;
+    @Column(length = 500)
+    private String certifications;
 
-    private LocalDate joinedOn;
+    private String preferredDesignation;
 
-    private LocalDate leftOn;
+    @Column(length = 1000)
+    private String bio;
 
-    private Double salary;
-
-    private Integer experienceYears;
-
-    private String qualification;
+    private Boolean availableForHire = true;
 
     @Enumerated(EnumType.STRING)
-    private LibrarianStatus status;
+    private LibrarianProfileStatus profileStatus = LibrarianProfileStatus.ACTIVE;
+
+    @OneToMany(mappedBy = "librarian", cascade =  CascadeType.ALL)
+    private List<LibraryEmployment> employmentHistory = new ArrayList<>();
 
 }

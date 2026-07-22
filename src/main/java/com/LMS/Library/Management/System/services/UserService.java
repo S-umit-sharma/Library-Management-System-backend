@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.SQLOutput;
 import java.util.Optional;
 
 @Service
@@ -39,8 +40,17 @@ public class UserService {
     private String UPLOAD_DIR = "uploads/profile_pics";
 
     public User  registerUser(RegisterDto registerDto) {
-        User u = userDao.findByEmail(registerDto.getEmail()).get();
+        System.out.println("Inside the registerr User Method 1");
+        System.out.println(registerDto.getUserType());
+        System.out.println(registerDto.getEmail());
+
+        User u = userDao.findByEmail(registerDto.getEmail()).orElse(null);
+
+
+
         if(u != null) throw new RuntimeException("User already exists");
+
+
         User user = new User();
         user.setName(registerDto.getName());
         user.setEmail(registerDto.getEmail());
@@ -58,6 +68,8 @@ public class UserService {
 
         String otp = OtpGenrator.genrateOtp();
         user.setVerificationCode(otp);
+
+
 //        emailService.sendOtp(user.getEmail(), otp);
         return userDao.save(user);
     }

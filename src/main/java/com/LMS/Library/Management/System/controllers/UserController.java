@@ -38,7 +38,10 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterDto registerDto, HttpSession httpSession) {
+        System.out.println("Inside the register method");
         User saveduser = userService.registerUser(registerDto);
+        System.out.println("Saved User"+saveduser);
+
         if (saveduser == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
         }

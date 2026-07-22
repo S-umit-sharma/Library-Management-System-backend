@@ -1,5 +1,3 @@
-package com.LMS.Library.Management.System.dto;
-
 import com.LMS.Library.Management.System.entities.Library;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.Status;
@@ -12,23 +10,18 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class LibrarianDto {
-//
-//
-//    private String employeeCode;
-//
-//    private String designation;
-//
-//    private LocalDate joinedOn;
-//
-//    private LocalDate leftOn;
-//
-//    private Double salary;
-//
-//    private Integer experienceYears;
+public class CreateLibrarianProfileDto {
 
-    @NotBlank(message = "Enter the Qualification")
     private String qualification;
 
+    private Double totalExperienceYears;
+
+    private String specialization;
+
+    private String certifications;
+
+    private String preferredDesignation;
+
+    private String bio;
 
 }
