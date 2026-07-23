@@ -27,7 +27,7 @@ public class LibraryEmployment {
     private Library library;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id", nullable = false)
+    @JoinColumn(name = "librarian", nullable = false)
     private Librarian librarian;
 
     @Column(nullable = false)

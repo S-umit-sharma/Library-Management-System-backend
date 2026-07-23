@@ -46,15 +46,21 @@ public class LibraryService {
         Library libary = librayDao.findByUser_UserId(user.getUserId()).orElseThrow(()-> new RuntimeException("User Not Found"));
         LibraryResponseDto libraryResponseDto = new LibraryResponseDto();
         libraryResponseDto.setLibraryId(libary.getId());
-        libraryResponseDto.setLibraryName(user.getName());
+        libraryResponseDto.setAddress(user.getAddress());
+        libraryResponseDto.setContact(user.getContact());
+        libraryResponseDto.setRegistrationDate(user.getDob());
+        libraryResponseDto.setName(user.getName());
         libraryResponseDto.setEmail(user.getEmail());
-        libraryResponseDto.setWebsite(libary.getWebsite());
-        libraryResponseDto.setDetails(libary.getDetails());
-        libraryResponseDto.setOpeningTime(libary.getOpeningTime());
-        libraryResponseDto.setClosingTime(libary.getClosingTime());
+        libraryResponseDto.setProfilePic(user.getProfilePic());
+        libraryResponseDto.setCityName(user.getCity().getName());
+        libraryResponseDto.setStateName(user.getCity().getState().getName());
         libraryResponseDto.setBookIssueDays(libary.getBookIssueDays());
-        libraryResponseDto.setLateFine(libraryResponseDto.getLateFine());
+        libraryResponseDto.setClosingTime(libary.getClosingTime());
         libraryResponseDto.setDepositAmount(libary.getDepositAmount());
+        libraryResponseDto.setDetails(libary.getDetails());
+        libraryResponseDto.setLateFine(libraryResponseDto.getLateFine());
+        libraryResponseDto.setOpeningTime(libary.getOpeningTime());
+        libraryResponseDto.setWebsite(libary.getWebsite());
 
 
         return libraryResponseDto;

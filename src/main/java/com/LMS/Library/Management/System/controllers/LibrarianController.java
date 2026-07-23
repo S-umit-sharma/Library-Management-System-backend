@@ -60,14 +60,15 @@ public class LibrarianController {
 
             @RequestParam(required = false) Integer maxAge,
 
-            Pageable pageable) {
+            Pageable pageable, HttpSession session) {
+        Integer libraryId = (Integer) session.getAttribute("libraryId");
 
         return ResponseEntity.ok(
                 service.searchAvailableLibrarians(
                         query,
                         minExp,
                         maxAge,
-                        pageable));
+                        pageable,libraryId));
     }
 
 }

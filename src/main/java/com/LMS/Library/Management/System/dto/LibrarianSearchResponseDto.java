@@ -5,20 +5,31 @@ import lombok.*;
 
 import java.util.List;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LibrarianSearchResponseDto {
 
     private Integer librarianId;
+
+    // User Information
     private String name;
     private String email;
-    private String phone;
-    private String photo;
+    private String contact;
+    private String profilePic;
     private Integer age;
-    private Integer experienceYears;
-    private String qualification;
     private String location;
-    private String employeeCode;
-    private List<String> specialties;
-    private LibrarianProfileStatus status;
-    private boolean hired; // true if library is not null
+
+    // Professional Information
+    private String highestQualification;
+    private Double totalExperienceYears;
+    private String specialization;
+    private String preferredDesignation;
+    private LibrarianProfileStatus profileStatus;
+
+    // Hiring Status
+    private Boolean availableForHire;
+    private boolean hired;
 }

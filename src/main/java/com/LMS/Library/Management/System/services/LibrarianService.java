@@ -2,6 +2,7 @@ package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dao.LibraianDao;
 import com.LMS.Library.Management.System.dao.LibraryDao;
+import com.LMS.Library.Management.System.dao.LibraryEmploymentDao;
 import com.LMS.Library.Management.System.dto.LibrarianDetailDto;
 import com.LMS.Library.Management.System.dto.LibrarianProfileDto;
 import com.LMS.Library.Management.System.dto.LibrarianSearchResponseDto;
@@ -33,6 +34,9 @@ public class LibrarianService {
 
     @Autowired
     LibraryDao libraryDao;
+
+    @Autowired
+    LibraryEmploymentDao libraryEmploymentDao;
 
 
     public void addDetails(LibrarianDetailDto librarianDto, Integer id) {
@@ -87,7 +91,7 @@ public class LibrarianService {
             String query,
             Double minExp,
             Integer maxAge,
-            Pageable pageable) {
+            Pageable pageable, Integer libraryId) {
 
         return libraianDao.searchAvailableLibrarians(
                 query,
@@ -95,7 +99,7 @@ public class LibrarianService {
                 maxAge,
                 LibrarianProfileStatus.ACTIVE,
                 pageable
-        ).map(this::toSearchResponse);
+        ).map(librarian->toSearchResponse(librarian,libraryId));
     }
 
     // -------------------------------------------------------
@@ -119,39 +123,40 @@ public class LibrarianService {
 //        librarian.setJoinedOn(LocalDate.now());
 
         libraianDao.save(librarian);
-        return toSearchResponse(librarian);
+        return toSearchResponse(librarian,libraryId);
     }
 
     // -------------------------------------------------------
 // MAPPER
 // -------------------------------------------------------
-    private LibrarianSearchResponseDto toSearchResponse(Librarian librarian) {
+    private LibrarianSearchResponseDto toSearchResponse(Librarian librarian, Integer libraryId) {
         User user = librarian.getUser();
-
+        System.out.println(user.getUserId());
         int age = 0;
         if (user.getDob() != null) {
             age = Period.between(user.getDob(), LocalDate.now()).getYears();
         }
 
-//        List<String> specialties = (librarian.getSpecialties() != null &&
-//                !librarian.getSpecialties().isBlank())
-//                ? Arrays.asList(librarian.getSpecialties().split(","))
-//                : List.of();
+        boolean hired = libraryEmploymentDao
+                .existsByLibrary_IdAndLibrarianLibrarianId(
+                        libraryId,
+                        librarian.getLibrarianId());
 
         return LibrarianSearchResponseDto.builder()
-//                .librarianId(librarian.getLibrarianId())
+                .librarianId(librarian.getLibrarianId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .phone(user.getContact())
-                .photo(user.getProfilePic())
+                .contact(user.getContact())
+                .profilePic(user.getProfilePic())
                 .age(age)
-//                .experienceYears(librarian.getExperienceYears())
-//                .qualification(librarian.getQualification())
-//                .location(user.getAddress())
-//                .employeeCode(librarian.getEmployeeCode())
-//                .specialties(specialties)
-//                .status(librarian.getStatus())
-//                .hired(librarian.getLibrary() != null)
+                .location(user.getCity().getName())
+                .highestQualification(librarian.getHighestQualification())
+                .totalExperienceYears(librarian.getTotalExperienceYears())
+                .specialization(librarian.getSpecialization())
+                .preferredDesignation(librarian.getPreferredDesignation())
+                .profileStatus(librarian.getProfileStatus())
+                .availableForHire(librarian.getAvailableForHire())
+                .hired(hired)
                 .build();
     }
 
