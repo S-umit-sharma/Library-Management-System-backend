@@ -46,4 +46,12 @@ public interface MembershipDao extends JpaRepository<Membership,Integer> {
     @Query("SELECT SUM(m.dueAmount) FROM Membership m WHERE m.library.id = :libraryId")
     Double sumDueAmountByLibraryId(@Param("libraryId") Integer libraryId);
 
+    @Query("""
+            SELECT COUNT(m)
+            FROM Membership m
+            WHERE m.library.id=:libraryId
+            AND m.status='ACTIVE'
+            """)
+    Integer countActiveMembers(Integer libraryId);
+
 }

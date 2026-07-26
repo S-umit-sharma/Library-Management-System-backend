@@ -59,11 +59,27 @@ public interface BookIssueRepository extends JpaRepository<BookIssue, Integer> {
     Optional<BookIssue> findByBookBookIdAndMembershipMembershipIdAndStatus(
             Integer bookId, Integer membershipId, IssueStatus status);
 
-//    // Check if a book is issued to anyone (for return lookup in Issue&Return tab)
-//    Optional<BookIssue> findByBookBookIdAndLibraryIdAndStatus(
-//            Integer bookId, Integer libraryId, IssueStatus status);
-//
-//    Optional<Object> findByQuantityLessThanEqualAndPublisherLibraryId(int lowStockThreshold, Integer libraryId, Pageable pageable);
+    @Query("""
+SELECT COUNT(b)
+FROM BookIssue b
+WHERE b.library.id=:libraryId
+AND b.issueDate=CURRENT_DATE
+""")
+    Integer countIssuedToday(Integer libraryId);
 
-//    long countByStockLessThanEqualAndPublisherLibraryId(int lowStockThreshold, Integer libraryId);
+    @Query("""
+SELECT COUNT(b)
+FROM BookIssue b
+WHERE b.library.id=:libraryId
+AND b.status='ISSUED'
+AND b.dueDate<CURRENT_DATE
+""")
+    Integer countOverdueBooks(Integer libraryId);
+
+    List<BookIssue> findByMembershipMembershipId(Integer membershipId);
+
+    List<BookIssue> findByMembershipMembershipIdAndFineDueGreaterThanOrderByIssueDateAsc(
+            Integer membershipId,
+            Double fineDue);
+
 }

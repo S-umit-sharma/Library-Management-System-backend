@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -215,6 +217,38 @@ public class LibraryEmploymentService {
                 .employmentStatus(e.getEmploymentStatus())
                 .libraryId(e.getLibrary().getId())
                 .libraryName(e.getLibrary().getUser().getName())
+                .build();
+    }
+
+    public List<StaffDto> getStaffOnDuty(Integer libraryId) {
+
+        List<LibraryEmployment> employments =
+                employmentDao.findByLibrary_IdAndEmploymentStatus(
+                        libraryId,
+                        EmploymentStatus.ACTIVE
+                );
+
+        return employments.stream()
+                .map(this::toStaffDto)
+                .toList();
+    }
+
+    private StaffDto toStaffDto(LibraryEmployment employment) {
+
+        String name = employment.getLibrarian().getUser().getName();
+
+        String initials = Arrays.stream(name.split(" "))
+                .filter(s -> !s.isBlank())
+                .map(s -> s.substring(0, 1).toUpperCase())
+                .reduce("", String::concat);
+
+        return StaffDto.builder()
+                .initials(initials)
+                .name(name)
+                .role(employment.getDesignation())
+                .onDuty(true)
+                .bg("#EEEDFE")
+                .fg("#3C3489")
                 .build();
     }
 }

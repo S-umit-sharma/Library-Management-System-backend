@@ -1,5 +1,6 @@
 package com.LMS.Library.Management.System.controllers;
 
+import com.LMS.Library.Management.System.dto.LibraryDashboardDto;
 import com.LMS.Library.Management.System.dto.LibraryDto;
 import com.LMS.Library.Management.System.dto.LibraryResponseDto;
 import com.LMS.Library.Management.System.entities.User;
@@ -36,6 +37,16 @@ public class LibraryController {
         httpSession.setAttribute("UserTypeId",libraryResponseDto.getLibraryId());
 
         return ResponseEntity.ok(libraryResponseDto);
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<LibraryDashboardDto> getDashboard(HttpSession session){
+
+        Integer userId = (Integer) session.getAttribute("loggedInUser");
+
+        return ResponseEntity.ok(
+                libraryService.getDashboard(userId)
+        );
     }
 
 

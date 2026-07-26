@@ -219,11 +219,21 @@ public class BookIssueService {
                 .orElseThrow(() -> new RuntimeException(
                         "No membership found with number: " + membershipNumber));
 
-        List<BookIssue> activeIssues = bookIssueRepository
-                .findByMembershipMembershipIdAndStatus(
-                        membership.getMembershipId(), IssueStatus.ISSUED);
+        // Fetch all issues for this membership
+        List<BookIssue> issues = bookIssueRepository
+                .findByMembershipMembershipId(membership.getMembershipId());
 
         User user = membership.getUser();
+
+        double membershipFine =
+                membership.getDueAmount() == null ? 0.0 : membership.getDueAmount();
+
+        double bookFine = issues.stream()
+                .mapToDouble(issue ->
+                        issue.getFineDue() == null ? 0.0 : issue.getFineDue())
+                .sum();
+        System.out.println(bookFine);
+        double totalFine = membershipFine;
 
         return MemberIssueDetailsDto.builder()
                 .memberName(user.getName())
@@ -231,15 +241,22 @@ public class BookIssueService {
                 .memberContact(user.getContact())
                 .membershipNumber(membership.getMembershipNumber())
                 .membershipId(membership.getMembershipId())
-                .dueAmount(membership.getDueAmount() == null ? 0.0 : membership.getDueAmount())
-                .booksCurrentlyIssued(membership.getBooksIssued() == null ? 0 : membership.getBooksIssued())
-                .maxBooksAllowed(membership.getMaxBooksAllowed() == null ? 3 : membership.getMaxBooksAllowed())
-                .currentlyIssuedBooks(activeIssues.stream()
-                        .map(this::toResponse)
-                        .collect(Collectors.toList()))
+
+                .membershipFine(membershipFine)
+                .bookFine(bookFine)
+                .totalFine(totalFine)
+
+                .booksCurrentlyIssued(
+                        membership.getBooksIssued() == null ? 0 : membership.getBooksIssued())
+                .maxBooksAllowed(
+                        membership.getMaxBooksAllowed() == null ? 3 : membership.getMaxBooksAllowed())
+
+                .currentlyIssuedBooks(
+                        issues.stream()
+                                .map(this::toResponse)
+                                .collect(Collectors.toList()))
                 .build();
     }
-
     // ------------------------------------------------------------------
     // DESK STATS — for the 4 stat cards
     // ------------------------------------------------------------------
@@ -292,19 +309,42 @@ public class BookIssueService {
     // MAPPER
     // ------------------------------------------------------------------
     private BookIssueResponseDto toResponse(BookIssue issue) {
+
         Book book = issue.getBook();
         Membership membership = issue.getMembership();
         User user = membership.getUser();
-        LocalDate today = LocalDate.now();
+
         LocalDate dueDate = issue.getDueDate();
 
-        boolean overdue = issue.getStatus() == IssueStatus.RETURNED
-                && today.isAfter(dueDate);
-        long overdueDays = overdue ? ChronoUnit.DAYS.between(dueDate, today) : 0;
+        boolean overdue;
+        long overdueDays;
 
-        double fineDue = overdue
-                ? overdueDays * issue.getLibrary().getLateFine()
-                : 0;
+        if (issue.getStatus() == IssueStatus.ISSUED) {
+
+            overdue = LocalDate.now().isAfter(dueDate);
+
+            overdueDays = overdue
+                    ? ChronoUnit.DAYS.between(dueDate, LocalDate.now())
+                    : 0;
+
+        } else if (issue.getStatus() == IssueStatus.RETURNED) {
+
+            overdue = issue.getReturnDate() != null
+                    && issue.getReturnDate().isAfter(dueDate);
+
+            overdueDays = overdue
+                    ? ChronoUnit.DAYS.between(dueDate, issue.getReturnDate())
+                    : 0;
+
+        } else {
+
+            overdue = false;
+            overdueDays = 0;
+        }
+
+        Double fineDue = issue.getFineDue() == null
+                ? 0.0
+                : issue.getFineDue();
 
         return BookIssueResponseDto.builder()
                 .issueId(issue.getIssueId())
@@ -326,5 +366,4 @@ public class BookIssueService {
                 .overdue(overdue)
                 .overdueDays(overdueDays)
                 .build();
-    }
-}
+    }}

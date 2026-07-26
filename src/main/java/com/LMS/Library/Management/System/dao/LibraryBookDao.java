@@ -48,4 +48,11 @@ public interface LibraryBookDao extends JpaRepository<LibraryBook,Integer> {
     Optional<LibraryBook> findByLibrary_IdAndBookBookId(
             Integer libraryId,
             Integer bookId);
+
+    @Query("""
+            SELECT COUNT(lb)
+            FROM LibraryBook lb
+            WHERE lb.library.id=:libraryId
+            """)
+    Integer countBooks(Integer libraryId);
 }
