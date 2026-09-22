@@ -2,9 +2,9 @@ on:
     push:
         branches:
           - master
-pull_request:
-    branches:
-      -master
+    pull_request:
+        branches:
+          -   master
 permissions:
     contents: read
 jobs:
@@ -13,7 +13,7 @@ jobs:
       runs-on: ubuntu-latest
 
       steps:
-          # Step 1: Checkout the Github respositry
+          #Step 1: Checkout the GitHub repository
           - name: Checkout source code
             uses: actions/checkout@v4
           #Step 2: Install Java 17
@@ -28,8 +28,8 @@ jobs:
             run: chmod +x mvnw
           #Step 4: Build and run tests
           - name: Build and test
-            run: ./mvnw -B clean verfiy
-          #Step 5: Upload genrated JAR
+            run: ./mvnw -B clean verify
+          #Step 5: Upload generated JAR
           - name: Upload JAR artifact
             if: success()
             uses: actions/upload-artifact@v4
