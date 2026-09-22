@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface LibraianDao extends JpaRepository<Librarian, Integer> {
+public interface LibrarianDao extends JpaRepository<Librarian, Integer> {
 
     Optional<Librarian> findByUser(User user);
 
@@ -45,4 +45,6 @@ public interface LibraianDao extends JpaRepository<Librarian, Integer> {
             @Param("status") LibrarianProfileStatus status,
             Pageable pageable
     );
+
+    Optional<Librarian> findByUser_UserId(Integer integer);
 }

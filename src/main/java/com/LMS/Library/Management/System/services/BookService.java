@@ -168,10 +168,11 @@ public class BookService {
         return bookReponseDto;
     }
 
-    public Page<BookReponseDto> getAllBooksByPublisherId(Integer pubId, int page, int size) {
+    public Page<BookReponseDto> getAllBooksByPublisherId(Integer userId, int page, int size) {
+        Integer publisherId = publisherRepository.findByUser_UserId(userId).orElseThrow(()-> new RuntimeException("User Not Found")).getPublisherId();
         Pageable pageable = PageRequest.of(page, size);
 
-        return bookDao.findBooksByPublisherId(pubId, pageable);
+        return bookDao.findBooksByPublisherId(publisherId, pageable);
 
 
     }

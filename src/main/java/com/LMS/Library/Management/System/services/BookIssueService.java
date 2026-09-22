@@ -232,8 +232,19 @@ public class BookIssueService {
                 .mapToDouble(issue ->
                         issue.getFineDue() == null ? 0.0 : issue.getFineDue())
                 .sum();
-        System.out.println(bookFine);
+
         double totalFine = membershipFine;
+
+        List<BookIssueResponseDto> currentlyIssuedBooks =
+                issues.stream()
+                        .filter(issue -> issue.getStatus() == IssueStatus.ISSUED)
+                        .map(this::toResponse)
+                        .collect(Collectors.toList());
+
+        List<BookIssueResponseDto> borrowingHistory =
+                issues.stream()
+                        .map(this::toResponse)
+                        .collect(Collectors.toList());
 
         return MemberIssueDetailsDto.builder()
                 .memberName(user.getName())
@@ -250,11 +261,10 @@ public class BookIssueService {
                         membership.getBooksIssued() == null ? 0 : membership.getBooksIssued())
                 .maxBooksAllowed(
                         membership.getMaxBooksAllowed() == null ? 3 : membership.getMaxBooksAllowed())
-
-                .currentlyIssuedBooks(
-                        issues.stream()
-                                .map(this::toResponse)
-                                .collect(Collectors.toList()))
+                .expiryDate(membership.getExpiryDate())
+                .issueDate(membership.getIssueDate())
+                .currentlyIssuedBooks(currentlyIssuedBooks)
+                .borrowingHistory(borrowingHistory)
                 .build();
     }
     // ------------------------------------------------------------------
@@ -366,4 +376,16 @@ public class BookIssueService {
                 .overdue(overdue)
                 .overdueDays(overdueDays)
                 .build();
-    }}
+    }
+
+    public long getCurrentlyIssuedCount(Integer libraryId) {
+
+        return bookIssueRepository
+                .countByLibraryIdAndStatus(
+                        libraryId,
+                        IssueStatus.ISSUED
+                );
+    }
+
+}
+

@@ -7,6 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PublisherDto {
+
+    @NotBlank(message = "Email Is required")
+    private String email;
+
     @NotBlank(message = "Enter the company name")
     private String companyName;
 
@@ -18,4 +22,6 @@ public class PublisherDto {
 
     @NotBlank(message = "Enter the description")
     private String description;
+
+
 }

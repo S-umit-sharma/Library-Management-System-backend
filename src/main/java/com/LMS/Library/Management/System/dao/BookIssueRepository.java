@@ -82,4 +82,6 @@ AND b.dueDate<CURRENT_DATE
             Integer membershipId,
             Double fineDue);
 
+
+
 }

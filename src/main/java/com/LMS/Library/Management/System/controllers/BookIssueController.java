@@ -1,7 +1,10 @@
 package com.LMS.Library.Management.System.controllers;
 
 
+import com.LMS.Library.Management.System.Security.CustomUserDetails;
+import com.LMS.Library.Management.System.dao.LibraryDao;
 import com.LMS.Library.Management.System.dto.*;
+import com.LMS.Library.Management.System.entities.Library;
 import com.LMS.Library.Management.System.services.BookIssueService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -9,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class BookIssueController {
 
     private final BookIssueService bookIssueService;
+    private final LibraryDao libraryDao;
 
     // ------------------------------------------------------------------
     // POST /book-issue
@@ -26,9 +31,12 @@ public class BookIssueController {
     @PostMapping
     public ResponseEntity<BookIssueResponseDto> issueBook(
             @Valid @RequestBody IssueBookRequest request,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(bookIssueService.issueBook(request, libraryId));
     }
 
@@ -39,9 +47,12 @@ public class BookIssueController {
     @PatchMapping("/{issueId}/return")
     public ResponseEntity<BookIssueResponseDto> returnBook(
             @PathVariable Integer issueId,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(bookIssueService.returnBook(issueId, libraryId));
     }
 
@@ -53,9 +64,12 @@ public class BookIssueController {
     public ResponseEntity<Page<BookIssueResponseDto>> getAllIssues(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(bookIssueService.getAllIssues(libraryId, page, size));
     }
 
@@ -67,9 +81,12 @@ public class BookIssueController {
     public ResponseEntity<Page<BookIssueResponseDto>> getCurrentlyIssued(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(
                 bookIssueService.getCurrentlyIssuedBooks(libraryId, page, size));
     }
@@ -82,8 +99,11 @@ public class BookIssueController {
     public ResponseEntity<Page<BookIssueResponseDto>> getOverdue(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+            Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(
                 bookIssueService.getOverdueIssues(libraryId, page, size));
     }
@@ -95,10 +115,11 @@ public class BookIssueController {
     // ------------------------------------------------------------------
     @GetMapping("/member/{membershipNumber}")
     public ResponseEntity<MemberIssueDetailsDto> getMemberIssueDetails(
-            @PathVariable String membershipNumber,
-            HttpSession session) {
+            @PathVariable String membershipNumber, Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(
                 bookIssueService.getMemberIssueDetails(membershipNumber, libraryId));
     }
@@ -108,8 +129,11 @@ public class BookIssueController {
     // Desk stat cards: issued count, overdue count, total dues, low stock
     // ------------------------------------------------------------------
     @GetMapping("/stats")
-    public ResponseEntity<DeskStatsDto> getDeskStats(HttpSession session) {
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+    public ResponseEntity<DeskStatsDto> getDeskStats(Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(bookIssueService.getDeskStats(libraryId));
     }
 
@@ -121,13 +145,36 @@ public class BookIssueController {
     public ResponseEntity<?> getLowStockBooks(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
 
-        if(libraryId == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Again");
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
+
+        if (libraryId == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Again");
         return ResponseEntity.ok(
                 bookIssueService.getLowStockBooks(libraryId, page, size));
+    }
+
+    @GetMapping("/issued/count")
+    public ResponseEntity<Long> getIssuedBookCount(
+            Authentication authentication) {
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        Integer userId = userDetails.getUserId();
+
+        Library library =
+                libraryDao.findByUser_UserId(userId).orElseThrow(()-> new RuntimeException("User Not Found"));
+
+        long count =
+                bookIssueService.getCurrentlyIssuedCount(
+                        library.getId()
+                );
+
+        return ResponseEntity.ok(count);
     }
 }
 

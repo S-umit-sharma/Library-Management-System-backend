@@ -1,5 +1,7 @@
 package com.LMS.Library.Management.System.controllers;
 
+import com.LMS.Library.Management.System.Security.CustomUserDetails;
+import com.LMS.Library.Management.System.Security.CustomUserDetailsService;
 import com.LMS.Library.Management.System.dto.LibraryDashboardDto;
 import com.LMS.Library.Management.System.dto.LibraryDto;
 import com.LMS.Library.Management.System.dto.LibraryResponseDto;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,29 +23,30 @@ public class LibraryController {
     LibraryService libraryService;
 
     @PostMapping("/details")
-    public ResponseEntity<String> addDetails(@RequestBody LibraryDto libraryDto, HttpSession session){
-        Integer id = (Integer) session.getAttribute("loggedInUser");
-        if(id == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Required");
-        libraryService.addDetails(libraryDto, id);
+    public ResponseEntity<String> addDetails(@RequestBody LibraryDto libraryDto){
+        libraryService.addDetails(libraryDto);
         return ResponseEntity.status(HttpStatus.OK).body("Library details saved successfully!");
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getLibraryProfile(HttpSession httpSession){
-        Integer userId = (Integer)httpSession.getAttribute("loggedInUser");
+    public ResponseEntity<?> getLibraryProfile(Authentication authentication){
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
 
         if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session Expired Please login Again");
         LibraryResponseDto libraryResponseDto = libraryService.getLibraryProfile(userId);
         if(libraryResponseDto == null) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Complete Your OTP Verification");
-        httpSession.setAttribute("UserTypeId",libraryResponseDto.getLibraryId());
+
 
         return ResponseEntity.ok(libraryResponseDto);
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<LibraryDashboardDto> getDashboard(HttpSession session){
+    public ResponseEntity<LibraryDashboardDto> getDashboard(Authentication authentication){
 
-        Integer userId = (Integer) session.getAttribute("loggedInUser");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+
 
         return ResponseEntity.ok(
                 libraryService.getDashboard(userId)

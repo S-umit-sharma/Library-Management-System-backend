@@ -34,8 +34,7 @@ public class Library  {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(mappedBy = "library")
+    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL)
     private List<LibraryEmployment> employments = new ArrayList<>();
-
 
 }

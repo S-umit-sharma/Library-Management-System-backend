@@ -1,6 +1,7 @@
 package com.LMS.Library.Management.System.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 @Builder
 public class ProfileUploadingDto {
-    @NotBlank(message = "Upload the image")
-    private MultipartFile multipartFile;
+    @NotNull(message = "Upload the image")
+    private MultipartFile profilePic;
 }

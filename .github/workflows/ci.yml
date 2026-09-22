@@ -1,0 +1,40 @@
+on:
+    push:
+        branches:
+          - master
+pull_request:
+    branches:
+      -master
+permissions:
+    contents: read
+jobs:
+    build:
+      name: Build and Test
+      runs-on: ubuntu-latest
+
+      steps:
+          # Step 1: Checkout the Github respositry
+          - name: Checkout source code
+            uses: actions/checkout@v4
+          #Step 2: Install Java 17
+          - name: Set up Java 17
+            uses : actions/setup-java@v4
+            with:
+                distribution: temurin
+                java-version: '17'
+                cache: maven
+          #Step 3: Make Maven Wrapper executable
+          - name: Make Maven Wrapper executable
+            run: chmod +x mvnw
+          #Step 4: Build and run tests
+          - name: Build and test
+            run: ./mvnw -B clean verfiy
+          #Step 5: Upload genrated JAR
+          - name: Upload JAR artifact
+            if: success()
+            uses: actions/upload-artifact@v4
+            with:
+              name: libsync-jar
+              path: target/*.jar
+              if-no-files-found: error
+              retention-days: 7

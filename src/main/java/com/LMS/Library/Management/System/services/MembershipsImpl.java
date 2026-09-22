@@ -47,6 +47,7 @@ public class MembershipsImpl implements MembershipService {
                 .dueAmount(membership.getDueAmount())
                 .booksIssued(membership.getBooksIssued())
                 .maxBooksAllowed(membership.getMaxBooksAllowed())
+                .profilePic(membership.getUser().getProfilePic())
                 .build();
     }
 
@@ -90,6 +91,7 @@ public class MembershipsImpl implements MembershipService {
                 .membershipPlan(membershipPlan)
                 .membershipFee(membershipPlan.getFee())
                 .maxBooksAllowed(membershipPlan.getMaxBooksAllowed())
+
                 .build();
 
         membershipRepository.save(membership);

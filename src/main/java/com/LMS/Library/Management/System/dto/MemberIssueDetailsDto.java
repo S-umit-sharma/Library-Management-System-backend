@@ -1,6 +1,8 @@
 package com.LMS.Library.Management.System.dto;
 
 import lombok.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -19,6 +21,8 @@ public class MemberIssueDetailsDto {
 
     // Membership level due
     private Double membershipFine;
+    private LocalDate issueDate;
+    private LocalDate expiryDate;
 
     // Sum of all book fines
     private Double bookFine;
@@ -31,4 +35,7 @@ public class MemberIssueDetailsDto {
 
     // Books issued with individual fine
     private List<BookIssueResponseDto> currentlyIssuedBooks;
+
+    // All previous/current borrowing records
+    private List<BookIssueResponseDto> borrowingHistory;
 }

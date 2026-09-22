@@ -37,4 +37,6 @@ public class LibraryMembershipResponseDto {
     private Integer maxBooksAllowed;
 
     private String remarks;
+
+    private  String profilePic;
 }

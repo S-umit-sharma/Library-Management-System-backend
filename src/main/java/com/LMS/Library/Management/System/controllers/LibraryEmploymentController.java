@@ -1,5 +1,7 @@
 package com.LMS.Library.Management.System.controllers;
 
+import com.LMS.Library.Management.System.Security.CustomUserDetails;
+import com.LMS.Library.Management.System.dao.LibraryDao;
 import com.LMS.Library.Management.System.dto.*;
 import com.LMS.Library.Management.System.enums.EmploymentStatus;
 import com.LMS.Library.Management.System.services.LibraryEmploymentService;
@@ -8,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class LibraryEmploymentController {
 
     private final LibraryEmploymentService employmentService;
+    private final LibraryDao libraryDao;
 
     // POST /employment/{profileId}
     // Library hires a librarian — creates employment record
@@ -23,9 +27,11 @@ public class LibraryEmploymentController {
     public ResponseEntity<LibraryEmploymentResponseDto> hireLibrarian(
             @PathVariable Integer profileId,
             @Valid @RequestBody HireLibrarianRequestDto request,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(
                 employmentService.hireLibrarian(profileId, libraryId, request));
     }
@@ -36,9 +42,11 @@ public class LibraryEmploymentController {
     public ResponseEntity<Page<LibraryEmploymentResponseDto>> getActiveStaff(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("User Not found")).getId();
         return ResponseEntity.ok(
                 employmentService.getActiveStaff(libraryId, page, size));
     }
@@ -49,9 +57,12 @@ public class LibraryEmploymentController {
     public ResponseEntity<Page<LibraryEmploymentResponseDto>> getAllStaff(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("User Not found")).getId();
+
         return ResponseEntity.ok(
                 employmentService.getAllStaff(libraryId, page, size));
     }
@@ -61,9 +72,12 @@ public class LibraryEmploymentController {
     @GetMapping("/{employmentId}")
     public ResponseEntity<LibraryEmploymentResponseDto> getEmployment(
             @PathVariable Integer employmentId,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("User Not found")).getId();
+
         return ResponseEntity.ok(
                 employmentService.getEmployment(employmentId, libraryId));
     }
@@ -74,9 +88,12 @@ public class LibraryEmploymentController {
     public ResponseEntity<LibraryEmploymentResponseDto> updateEmployment(
             @PathVariable Integer employmentId,
             @RequestBody UpdateEmploymentRequest request,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("User Not found")).getId();
+
         return ResponseEntity.ok(
                 employmentService.updateEmployment(employmentId, libraryId, request));
     }
@@ -87,9 +104,12 @@ public class LibraryEmploymentController {
     public ResponseEntity<LibraryEmploymentResponseDto> endEmployment(
             @PathVariable Integer employmentId,
             @RequestParam EmploymentStatus reason,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("User Not found")).getId();
+        
         return ResponseEntity.ok(
                 employmentService.endEmployment(employmentId, libraryId, reason));
     }

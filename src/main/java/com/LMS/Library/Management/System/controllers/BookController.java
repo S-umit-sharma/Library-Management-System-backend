@@ -1,5 +1,6 @@
 package com.LMS.Library.Management.System.controllers;
 
+import com.LMS.Library.Management.System.Security.CustomUserDetails;
 import com.LMS.Library.Management.System.dto.AddBookDto;
 import com.LMS.Library.Management.System.dto.BookReponseDto;
 import com.LMS.Library.Management.System.dto.BookUpdateDto;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -28,8 +30,9 @@ public class BookController {
     BookService bookService;
 
     @PostMapping("add")
-    public ResponseEntity<String> addBook(@ModelAttribute AddBookDto bookDetailDto, HttpSession session){
-        Integer userId = (Integer)session.getAttribute("loggedInUser");
+    public ResponseEntity<String> addBook(@ModelAttribute AddBookDto bookDetailDto, Authentication authentication){
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
         if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired login again");
         bookService.addBook(bookDetailDto,userId);
         return ResponseEntity.status(HttpStatus.OK).body("Book Added Successfully");
@@ -57,8 +60,9 @@ public class BookController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateBook(@PathVariable Integer id, @ModelAttribute BookUpdateDto dto,HttpSession session){
-        Integer userId = (Integer)session.getAttribute("loggedInUser");
+    public ResponseEntity<String> updateBook(@PathVariable Integer id, @ModelAttribute BookUpdateDto dto,Authentication authentication){
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
 
         if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Again");
 
@@ -68,8 +72,9 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBook(@PathVariable Integer id, HttpSession session){
-        Integer userId = (Integer)session.getAttribute("loggedInUser");
+    public ResponseEntity<?> getBook(@PathVariable Integer id,Authentication authentication ){
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
         if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Again");
         BookReponseDto  bookReponseDto = bookService.getBook(id);
 
@@ -77,10 +82,12 @@ public class BookController {
 
     }
 
-    @GetMapping("/publisher/{id}")
-    public ResponseEntity<Page<BookReponseDto>> getAllBooksByPublisherId(@PathVariable Integer id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue ="10") int size){
+    @GetMapping("/publisher")
+    public ResponseEntity<Page<BookReponseDto>> getAllBooksByPublisherId(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue ="10") int size, Authentication authentication){
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
 
-        return ResponseEntity.ok(bookService.getAllBooksByPublisherId(id,page,size));
+        return ResponseEntity.ok(bookService.getAllBooksByPublisherId(userId,page,size));
     }
 
     @GetMapping("all")
@@ -92,9 +99,10 @@ public class BookController {
 
     // Global Search
     @GetMapping("/search")
-    public ResponseEntity<?> searchBooks(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size, HttpSession session){
-
-        if( session.getAttribute("loggedInUser") == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
+    public ResponseEntity<?> searchBooks(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size, Authentication authentication){
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        if( userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
 
         return ResponseEntity.ok(
                 bookService.searchBooks(keyword,page,size)
@@ -102,8 +110,9 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable int id,HttpSession session){
-        Integer userId = (Integer)session.getAttribute("loggedInUser");
+    public ResponseEntity<String> deleteBook(@PathVariable int id,Authentication authentication){
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
         if(userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login again");
         bookService.deleteBook(id);
         return ResponseEntity.ok("Book Deleted Successfully");

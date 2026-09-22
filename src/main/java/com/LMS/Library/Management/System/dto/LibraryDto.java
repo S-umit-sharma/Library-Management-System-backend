@@ -1,5 +1,6 @@
 package com.LMS.Library.Management.System.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -10,6 +11,10 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class LibraryDto {
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Enter a valid email")
+    private String email;
     @NotBlank(message = "Enter the Description Of Your Library")
     private String details;
     @NotBlank(message = "Enter the Website Url")
@@ -24,4 +29,7 @@ public class LibraryDto {
     private Integer lateFine;
     @NotNull(message = "Enter the Desposite Amount")
     private Integer depositAmount;
+
+
+
 }

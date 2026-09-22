@@ -20,7 +20,7 @@ import java.util.List;
 public class LibraryEmploymentService {
 
     private final LibraryEmploymentDao employmentDao;
-    private final LibraianDao librarianDao;
+    private final LibrarianDao librarianDao;
     private final LibraryDao libraryDao;
 
     // ------------------------------------------------------------------

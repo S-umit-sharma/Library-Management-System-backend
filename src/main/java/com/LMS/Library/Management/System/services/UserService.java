@@ -1,9 +1,7 @@
 package com.LMS.Library.Management.System.services;
 
 import com.LMS.Library.Management.System.dao.CityDao;
-import com.LMS.Library.Management.System.dto.LoginDto;
-import com.LMS.Library.Management.System.dto.ProfileUploadingDto;
-import com.LMS.Library.Management.System.dto.RegisterDto;
+import com.LMS.Library.Management.System.dto.*;
 import com.LMS.Library.Management.System.entities.City;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.dao.UserDao;
@@ -12,6 +10,7 @@ import com.LMS.Library.Management.System.utils.OtpGenrator;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,10 +38,11 @@ public class UserService {
 
     private String UPLOAD_DIR = "uploads/profile_pics";
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public User  registerUser(RegisterDto registerDto) {
-        System.out.println("Inside the registerr User Method 1");
-        System.out.println(registerDto.getUserType());
-        System.out.println(registerDto.getEmail());
+
 
         User u = userDao.findByEmail(registerDto.getEmail()).orElse(null);
 
@@ -54,7 +54,9 @@ public class UserService {
         User user = new User();
         user.setName(registerDto.getName());
         user.setEmail(registerDto.getEmail());
-        user.setPassword(registerDto.getPassword());
+        user.setPassword(
+                passwordEncoder.encode(registerDto.getPassword())
+        );
         user.setDob(registerDto.getDob());
 
         City city = cityDao.findById(registerDto.getCityId()).orElseThrow(() -> new RuntimeException("City Not Found"));
@@ -89,10 +91,11 @@ public class UserService {
     }
 
     public User login(LoginDto loginDto) {
-        User user = userDao.findByEmail(loginDto.getEmail()).get();
-        if(user == null) throw new RuntimeException("User Not Found");
+        User user = userDao.findByEmail(loginDto.getEmail())
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
 
-        if(!user.getPassword().equals(loginDto.getPassword()))throw new RuntimeException("Please Enter Correct Password");
+
+        if(!passwordEncoder.matches(loginDto.getPassword(), user.getPassword()))throw new RuntimeException("Invalid Email Or Password");
 
         return user;
 
@@ -100,23 +103,98 @@ public class UserService {
 
     @Transactional
     public void upload(ProfileUploadingDto profileUploadingDTO, Integer userId) {
-        MultipartFile file = profileUploadingDTO.getMultipartFile();
-        if(file==null || file.isEmpty()) throw new RuntimeException(",Upload the image");
+        MultipartFile file = profileUploadingDTO.getProfilePic() ;
+        if(file==null || file.isEmpty()) throw new RuntimeException("Upload the image");
         User user = userDao.findById(userId).get();
         if(user == null) throw new RuntimeException("User Not Found");
-
         String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
         File directory = new File(UPLOAD_DIR);
         if(!directory.exists()) directory.mkdirs();
         Path path = Paths.get(UPLOAD_DIR, fileName);
+
+
         try{
-            Files.deleteIfExists(Paths.get(user.getProfilePic()));
+            if(user.getProfilePic() != null){
+
+                Files.deleteIfExists(Paths.get(user.getProfilePic()));
+
+            }
             Files.copy(file.getInputStream(),path, StandardCopyOption.REPLACE_EXISTING);
-            user.setProfilePic(path.toString());
+
+            user.setProfilePic(fileName);
             userDao.save(user);
         }catch (IOException ioException){
             throw new RuntimeException("Document Uplaod Failed");
         }
 
+    }
+
+    public User findByUserId(Integer userId) {
+        return userDao.findById(userId).orElseThrow(()-> new RuntimeException("User Not Found"));
+    }
+
+
+    public UserProfileDto getUserProfile(Integer userId) {
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        UserProfileDto dto = new UserProfileDto();
+
+        dto.setUserId(user.getUserId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setDob(user.getDob());
+        dto.setAddress(user.getAddress());
+        dto.setContact(user.getContact());
+        dto.setProfilePic(user.getProfilePic());
+
+        dto.setGender(user.getGender());
+        dto.setStatus(user.getStatus());
+        dto.setUserType(user.getUserType());
+
+        if (user.getCity() != null) {
+            dto.setCityId(user.getCity().getId());
+            dto.setCityName(user.getCity().getName());
+        }
+
+        return dto;
+    }
+
+
+    public UserProfileDto updateUserProfile(
+            Integer userId,
+            UserProfileUpdateDto dto
+    ) {
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        // Update basic information
+        user.setName(dto.getName());
+        user.setDob(dto.getDob());
+        user.setAddress(dto.getAddress());
+        user.setContact(dto.getContact());
+        user.setGender(dto.getGender());
+
+        // Update city
+        if (dto.getCityId() != null) {
+
+            City city = cityDao.findById(dto.getCityId())
+                    .orElseThrow(() ->
+                            new RuntimeException("City not found")
+                    );
+
+            user.setCity(city);
+        }
+
+
+        User updatedUser = userDao.save(user);
+
+        return getUserProfile(updatedUser.getUserId());
     }
 }

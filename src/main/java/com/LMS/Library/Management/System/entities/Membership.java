@@ -64,4 +64,6 @@ public class Membership {
 
     private Integer maxBooksAllowed;
 
+    private String profilePic;
+
 }

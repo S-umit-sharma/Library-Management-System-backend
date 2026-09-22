@@ -9,7 +9,7 @@ import lombok.Setter;
 public class LibrarianDetailDto {
 
 
-
+    private String email;
     // Librarian Profile Details
     private String highestQualification;
 

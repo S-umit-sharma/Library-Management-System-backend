@@ -1,28 +1,26 @@
 package com.LMS.Library.Management.System.services;
 
-import com.LMS.Library.Management.System.dao.LibraianDao;
+import com.LMS.Library.Management.System.dao.LibrarianDao;
 import com.LMS.Library.Management.System.dao.LibraryDao;
 import com.LMS.Library.Management.System.dao.LibraryEmploymentDao;
+import com.LMS.Library.Management.System.dao.UserDao;
 import com.LMS.Library.Management.System.dto.LibrarianDetailDto;
-import com.LMS.Library.Management.System.dto.LibrarianProfileDto;
+import com.LMS.Library.Management.System.dto.LibrarianProfileResponseDto;
 import com.LMS.Library.Management.System.dto.LibrarianSearchResponseDto;
+import com.LMS.Library.Management.System.dto.LibraryProfileUpdateDto;
 import com.LMS.Library.Management.System.entities.Librarian;
 import com.LMS.Library.Management.System.entities.Library;
 import com.LMS.Library.Management.System.entities.User;
 import com.LMS.Library.Management.System.enums.LibrarianProfileStatus;
 import com.LMS.Library.Management.System.enums.Status;
 import com.LMS.Library.Management.System.enums.UserType;
-import com.LMS.Library.Management.System.utils.EmployeeCodeGenrator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class LibrarianService {
@@ -30,7 +28,7 @@ public class LibrarianService {
     UserService userService;
 
     @Autowired
-    LibraianDao libraianDao;
+    LibrarianDao libraianDao;
 
     @Autowired
     LibraryDao libraryDao;
@@ -38,17 +36,20 @@ public class LibrarianService {
     @Autowired
     LibraryEmploymentDao libraryEmploymentDao;
 
+    @Autowired
+    UserDao userDao;
 
-    public void addDetails(LibrarianDetailDto librarianDto, Integer id) {
-        User user = userService.findUserById(id);
+
+    public void addDetails(LibrarianDetailDto librarianDto) {
+        User user = userService.findUserByEmail(librarianDto.getEmail());
         if (user == null) throw new RuntimeException("User Not Found");
         if (user.getStatus() == Status.PENDING) throw new RuntimeException("Verify OTP then try again");
         Librarian librarian = new Librarian();
         librarian.setHighestQualification(librarianDto.getHighestQualification());
         librarian.setTotalExperienceYears(librarianDto.getTotalExperienceYears());
         librarian.setSpecialization(librarianDto.getSpecialization());
-        librarian.setCertifications(librarian.getCertifications());
-        librarian.setPreferredDesignation(librarian.getPreferredDesignation());
+        librarian.setCertifications(librarianDto.getCertifications());
+        librarian.setPreferredDesignation(librarianDto.getPreferredDesignation());
         librarian.setBio(librarianDto.getBio());
         librarian.setUser(user);
         libraianDao.save(librarian);
@@ -57,32 +58,93 @@ public class LibrarianService {
 
     }
 
-    public LibrarianProfileDto getLibrarianProfile(Integer userId) {
+    public LibrarianProfileResponseDto getLibrarianProfile(Integer userId) {
+
+        // Get logged-in user
         User user = userService.findUserById(userId);
-        if (user == null) throw new RuntimeException("Invalid logged-in user");
-        Librarian librarian = libraianDao.findByUser(user).orElseThrow(()->new RuntimeException("User Not Found"));
-        if (user.getUserType() != UserType.LIBRARIAN) throw new RuntimeException("User not verified");
-        if (librarian == null) throw new RuntimeException("librarian profile not completed yet");
-        LibrarianProfileDto librarianProfileDto = new LibrarianProfileDto();
 
+        if (user == null) {
+            throw new RuntimeException("Invalid logged-in user");
+        }
 
+        // Verify user type
+        if (user.getUserType() != UserType.LIBRARIAN) {
+            throw new RuntimeException("User is not a librarian");
+        }
+
+        // Get librarian profile
+        Librarian librarian = libraianDao.findByUser(user)
+                .orElseThrow(() ->
+                        new RuntimeException("Librarian profile not completed yet"));
+
+        LibrarianProfileResponseDto librarianProfileDto =
+                new LibrarianProfileResponseDto();
+
+        // =========================
+        // User Details
+        // =========================
+
+        librarianProfileDto.setUserId(user.getUserId());
+        librarianProfileDto.setName(user.getName());
+        librarianProfileDto.setEmail(user.getEmail());
+        librarianProfileDto.setContact(user.getContact());
+        librarianProfileDto.setDob(user.getDob());
+        librarianProfileDto.setAddress(user.getAddress());
+        librarianProfileDto.setProfilePic(user.getProfilePic());
+        librarianProfileDto.setGender(user.getGender());
+        librarianProfileDto.setUserType(user.getUserType());
+        librarianProfileDto.setStatus(user.getStatus());
+
+        // =========================
         // Librarian Details
-//        librarianProfileDto.setEmployeeCode(librarian.getEmployeeCode());
-//        librarianProfileDto.setQualification(librarian.getQualification());
-//        librarianProfileDto.setDesignation(librarian.getDesignation());
-//        librarianProfileDto.setExperienceYears(librarianProfileDto.getExperienceYears());
-//        librarianProfileDto.setJoinedOn(librarian.getJoinedOn());
-//        librarianProfileDto.setStatus(librarian.getStatus());
-//        if (librarian.getLibrary() != null) {
+        // =========================
+
+        librarianProfileDto.setLibrarianId(
+                librarian.getLibrarianId()
+        );
+
+
+        librarianProfileDto.setHighestQualification(
+                librarian.getHighestQualification()
+        );
+
+        librarianProfileDto.setTotalExperienceYears(librarian.getTotalExperienceYears());
+        librarianProfileDto.setSpecialization(librarian.getSpecialization());
+        librarianProfileDto.setCertifications(librarian.getCertifications());
+        librarianProfileDto.setPreferredDesignation(librarian.getPreferredDesignation());
+        librarianProfileDto.setBio(librarian.getBio());
+        librarianProfileDto.setAvailableForHire(librarian.getAvailableForHire());
+        librarianProfileDto.setProfileStatus(librarian.getProfileStatus());
+
+
+        // =========================
+        // Library Details
+        // =========================
 //
-//            librarianProfileDto.setLibraryId(librarian.getLibrary().getId());
-//            librarianProfileDto.setLibraryName(librarian.getLibrary().getUser().getName());
-//            librarianProfileDto.setWebsite(librarian.getLibrary().getWebsite());
+//        if (librarian.getEmploymentHistory(). != null) {
+//
+//            librarianProfileDto.setLibraryId(
+//                    librarian.getLibrary().getId()
+//            );
+//
+//            librarianProfileDto.setLibraryName(
+//                    librarian.getLibrary().getUser().getName()
+//            );
+//
+//            librarianProfileDto.setWebsite(
+//                    librarian.getLibrary().getWebsite()
+//            );
+//
+//        } else {
+//
+//            // Librarian is currently not hired
+//            librarianProfileDto.setLibraryId(null);
+//            librarianProfileDto.setLibraryName(null);
+//            librarianProfileDto.setWebsite(null);
 //        }
 
         return librarianProfileDto;
     }
-
     // -------------------------------------------------------
 // SEARCH available librarians (not yet hired by any library)
 // -------------------------------------------------------
@@ -131,7 +193,7 @@ public class LibrarianService {
 // -------------------------------------------------------
     private LibrarianSearchResponseDto toSearchResponse(Librarian librarian, Integer libraryId) {
         User user = librarian.getUser();
-        System.out.println(user.getUserId());
+
         int age = 0;
         if (user.getDob() != null) {
             age = Period.between(user.getDob(), LocalDate.now()).getYears();
@@ -160,4 +222,32 @@ public class LibrarianService {
                 .build();
     }
 
+    public Librarian findByUserId(Integer userId) {
+
+        return libraianDao.findByUser_UserId(userId).orElseThrow(()-> new RuntimeException("User Not Found"));
+    }
+
+    public void updateProfile(LibraryProfileUpdateDto dto,Integer userId) {
+        User user = userService.findUserById(userId);
+
+        Librarian librarian = libraianDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("Librarian not found"));
+
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setContact(dto.getContact());
+        user.setDob(dto.getDob());
+        user.setAddress(dto.getAddress());
+        user.setGender(dto.getGender());
+
+        librarian.setHighestQualification(dto.getHighestQualification());
+        librarian.setTotalExperienceYears(dto.getTotalExperienceYears());
+        librarian.setSpecialization(dto.getSpecialization());
+        librarian.setCertifications(dto.getCertifications());
+        librarian.setPreferredDesignation(dto.getPreferredDesignation());
+        librarian.setBio(dto.getBio());
+
+         userDao.save(user);
+         libraianDao.save(librarian);
+
+    }
 }

@@ -42,8 +42,8 @@ public class LibraryService {
 
 
 
-    public Library addDetails(LibraryDto libraryDto, Integer id) {
-        User user = userService.findUserById(id);
+    public Library addDetails(LibraryDto libraryDto) {
+        User user = userService.findUserByEmail(libraryDto.getEmail());
         Library library = new Library();
         library.setUser(user);
         library.setDetails(libraryDto.getDetails());
@@ -123,4 +123,7 @@ public class LibraryService {
     }
 
 
+    public Library findByUserId(Integer userId) {
+        return libraryDao.findByUser_UserId(userId).orElseThrow(()->new RuntimeException("User Not Found"));
+    }
 }

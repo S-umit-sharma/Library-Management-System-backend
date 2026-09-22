@@ -1,6 +1,8 @@
 package com.LMS.Library.Management.System.controllers;
 
 
+import com.LMS.Library.Management.System.Security.CustomUserDetails;
+import com.LMS.Library.Management.System.dao.LibraryDao;
 import com.LMS.Library.Management.System.dto.CreateMembershipRequest;
 import com.LMS.Library.Management.System.dto.LibraryMembershipResponseDto;
 import com.LMS.Library.Management.System.dto.MembershipPaymentRequestDto;
@@ -9,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,13 +20,17 @@ import org.springframework.web.bind.annotation.*;
 public class MembershipController {
 
     private final MembershipService membershipService;
+    private final LibraryDao libraryDao;
 
     @PostMapping
     public ResponseEntity<LibraryMembershipResponseDto> createMembership(
             @RequestBody CreateMembershipRequest dto,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
+
 
         return ResponseEntity.ok(
                 membershipService.createMembership(dto, libraryId)
@@ -34,9 +41,12 @@ public class MembershipController {
     public ResponseEntity<Page<LibraryMembershipResponseDto>> getAllMemberships(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
+
 
         return ResponseEntity.ok(
                 membershipService.getMemberships(libraryId, page, size)
@@ -48,9 +58,12 @@ public class MembershipController {
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId = (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
+
 
         return ResponseEntity.ok(
                 membershipService.searchMemberships(libraryId, query, page, size)
@@ -64,10 +77,12 @@ public class MembershipController {
 
             @RequestBody MembershipPaymentRequestDto request,
 
-            HttpSession session) {
+            Authentication authentication) {
 
-        Integer libraryId =
-                (Integer) session.getAttribute("libraryId");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = customUserDetails.getUserId();
+        Integer libraryId = libraryDao.findByUser_UserId(userId).orElseThrow(() -> new RuntimeException("User Not found")).getId();
+
 
         return ResponseEntity.ok(
 
@@ -79,7 +94,6 @@ public class MembershipController {
 
         );
     }
-
 
 
 }

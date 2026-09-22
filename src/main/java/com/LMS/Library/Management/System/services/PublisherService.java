@@ -18,9 +18,9 @@ public class PublisherService {
     @Autowired
     private UserService userService;
 
-    public Publisher addDetails(PublisherDto publisherDto, Integer id) {
+    public Publisher  addDetails(PublisherDto publisherDto) {
 
-        User user = userService.findUserById(id);
+        User user = userService.findUserByEmail(publisherDto.getEmail());
 
         Publisher publisher = new Publisher();
         publisher.setUser(user);
@@ -68,5 +68,8 @@ public class PublisherService {
     }
 
 
+    public Publisher findByUserId(Integer userId) {
+        return publisherDao.findByUser_UserId(userId).orElseThrow(()-> new RuntimeException("User Not Found"));
+    }
 }
 
