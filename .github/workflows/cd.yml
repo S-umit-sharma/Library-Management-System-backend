@@ -34,8 +34,8 @@ jobs:
           target: "/opt/libsync"
           strip_components: 1
 
-      - name: Restart application
-        uses: appleboy/ssh-action@v1
+      - name: Restart application on EC2
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
@@ -43,4 +43,6 @@ jobs:
           script: |
             sudo systemctl daemon-reload
             sudo systemctl restart libsync
-            sudo systemctl status libsync --no-pager
+            sleep 5
+            sudo systemctl is-active --quiet libsync
+            echo "Application deployed successfully"
