@@ -18,6 +18,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
 
       - name: Build application
         run: ./mvnw clean package -DskipTests
