@@ -2,11 +2,14 @@ on:
   push:
     branches:
       - master
+
   pull_request:
     branches:
       - master
+
 permissions:
   contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -48,3 +51,43 @@ jobs:
           DB_USERNAME: testuser
           DB_PASSWORD: testpassword
 
+      - name: Upload JAR as artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: libsync-jar
+          path: target/LibSync-0.0.1-SNAPSHOT.jar
+
+
+  deploy:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: libsync-jar
+          path: target
+
+      - name: Copy JAR to EC2
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "target/LibSync-0.0.1-SNAPSHOT.jar"
+          target: "/opt/libsync"
+          strip_components: 1
+
+      - name: Restart application on EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            pkill -f '/opt/libsync/app.jar' || true
+            mv /opt/libsync/LibSync-0.0.1-SNAPSHOT.jar /opt/libsync/app.jar
+            nohup java -jar /opt/libsync/app.jar > /opt/libsync/app.log 2>&1 &
