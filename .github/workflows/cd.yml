@@ -18,6 +18,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
       - name: Make Maven Wrapper executable
         run: chmod +x mvnw
 
@@ -40,9 +41,11 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 5m
           script: |
+            sudo mv /opt/libsync/LibSync-0.0.1-SNAPSHOT.jar /opt/libsync/app.jar
             sudo systemctl daemon-reload
             sudo systemctl restart libsync
-            sleep 5
+            sleep 15
             sudo systemctl is-active --quiet libsync
             echo "Application deployed successfully"
