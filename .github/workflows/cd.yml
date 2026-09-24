@@ -1,9 +1,13 @@
-name: Build and Deploy
+name: CD - Deploy to EC2
 
 on:
   push:
     branches:
       - master
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -43,9 +47,20 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 5m
           script: |
+            set -e
+
             sudo mv /opt/libsync/LibSync-0.0.1-SNAPSHOT.jar /opt/libsync/app.jar
+
             sudo systemctl daemon-reload
             sudo systemctl restart libsync
+
             sleep 15
-            sudo systemctl is-active --quiet libsync
-            echo "Application deployed successfully"
+
+            if sudo systemctl is-active --quiet libsync; then
+              echo "Application deployed successfully"
+              sudo systemctl status libsync --no-pager
+            else
+              echo "Application failed to start"
+              sudo journalctl -u libsync -n 50 --no-pager
+              exit 1
+            fi
