@@ -53,7 +53,7 @@ public class UserController {
         }
 
         return ResponseEntity.ok(new RegisterResponseDto(
-                "OTP sent successfullyyy",
+                "OTP sent successfully",
                 saveduser.getEmail()
         ));
     }

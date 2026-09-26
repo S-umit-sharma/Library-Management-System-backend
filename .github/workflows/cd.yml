@@ -1,7 +1,11 @@
 name: CD - Deploy to EC2
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - "CI - Build Test and Docker"
+    types:
+      - completed
     branches:
       - master
 
@@ -11,56 +15,67 @@ concurrency:
 
 jobs:
   deploy:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+
     runs-on: ubuntu-latest
 
+    env:
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Make Maven Wrapper executable
-        run: chmod +x mvnw
-
-      - name: Build application
-        run: ./mvnw clean package -DskipTests
-
-      - name: Copy JAR to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "target/LibSync-0.0.1-SNAPSHOT.jar"
-          target: "/opt/libsync"
-          strip_components: 1
-
-      - name: Restart application on EC2
+      - name: Deploy Docker container to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 5m
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD
+
           script: |
             set -e
 
-            sudo mv /opt/libsync/LibSync-0.0.1-SNAPSHOT.jar /opt/libsync/app.jar
+            echo "Pulling latest Docker image..."
 
-            sudo systemctl daemon-reload
-            sudo systemctl restart libsync
+            sudo docker pull sumtsharma/libsync:latest
 
-            sleep 15
+            echo "Stopping old container..."
 
-            if sudo systemctl is-active --quiet libsync; then
-              echo "Application deployed successfully"
-              sudo systemctl status libsync --no-pager
+            sudo docker stop libsync || true
+
+            echo "Removing old container..."
+
+            sudo docker rm libsync || true
+
+            echo "Starting new container..."
+
+            sudo docker run -d \
+              --name libsync \
+              --restart unless-stopped \
+              -p 8080:8080 \
+              -e DB_URL="$DB_URL" \
+              -e DB_USERNAME="$DB_USERNAME" \
+              -e DB_PASSWORD="$DB_PASSWORD" \
+              sumtsharma/libsync:latest
+
+            echo "Waiting for application to start..."
+
+            sleep 20
+
+            echo "Checking container..."
+
+            if sudo docker ps --filter "name=libsync" --filter "status=running" | grep -q libsync; then
+              echo "Container is running successfully"
             else
-              echo "Application failed to start"
-              sudo journalctl -u libsync -n 50 --no-pager
+              echo "Container failed to start"
+              sudo docker logs --tail 100 libsync
               exit 1
             fi
+
+            echo "Deployment completed successfully"
+
+            sudo docker ps
